@@ -1,0 +1,2178 @@
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>يُسْر Pro | YUSR - منصتك المهنية الذكية</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="google-gsi-script" src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --bg: #101317; --panel: #1a1e24; --panel-2: #20252c; --border: #2c323b;
+        --text: #e6e8eb; --muted: #97a0ab; --accent: #9ca3af; --accent-strong:#cbd1d8;
+    }
+   * { scrollbar-width: thin; scrollbar-color: #3a4048 transparent; }
+    html, body { overflow-x: hidden; max-width: 100%; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); }
+    img, video, canvas, svg { max-width: 100%; height: auto; }
+    .font-tajawal { font-family: 'Tajawal', sans-serif; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #3a4048; border-radius: 8px; }
+
+    .panel { background: var(--panel); border: 1px solid var(--border); }
+    .panel-2 { background: var(--panel-2); border: 1px solid var(--border); }
+    .input-field { background: #14171b; border: 1px solid var(--border); color: var(--text); transition: all .15s ease; }
+    .input-field:focus { border-color: #6b7280; outline: none; box-shadow: 0 0 0 3px rgba(107,114,128,0.15); }
+    .btn-primary { background: linear-gradient(135deg,#7d848d,#565c64); color: #f4f5f6; }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { background: var(--panel-2); color: var(--text); }
+
+    /* Sidebar */
+    #sidebar {
+        width: 264px; background: #14171b; border-left: 1px solid var(--border);
+        transition: transform .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1);
+        transform: translateX(0);
+    }
+    #sidebar.collapsed { transform: translateX(100%); }
+    @media (min-width: 1024px) {
+        #sidebar.collapsed { transform: translateX(0); width: 76px; }
+        #sidebar.collapsed .sidebar-label { display: none; }
+        #sidebar.collapsed .sidebar-section-title { display: none; }
+    }
+    .sidebar-overlay { transition: opacity .3s ease; }
+
+    .nav-item { display:flex; align-items:center; gap:.65rem; padding:.6rem .75rem; border-radius:.7rem; color: var(--muted); font-size:.8rem; font-weight:600; transition: all .15s ease; cursor:pointer; white-space:nowrap; }
+    .nav-item:hover { background: var(--panel-2); color: var(--text); }
+    .nav-item.active { background: #2a2f36; color: #eef0f2; box-shadow: inset 0 0 0 1px #3a4048; }
+    .nav-item i { width: 18px; text-align:center; flex-shrink:0; }
+
+    .view { display:none; animation: fadeIn .25s ease; }
+    .view.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
+
+    .recording-pulse { animation: pulse-red 1.2s infinite; }
+    @keyframes pulse-red { 0%{box-shadow:0 0 0 0 rgba(239,68,68,.6);} 70%{box-shadow:0 0 0 9px rgba(239,68,68,0);} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0);} }
+    .pulse-voice { animation: pulse-ring 1.5s cubic-bezier(.215,.61,.355,1) infinite; }
+    @keyframes pulse-ring { 0%{transform:scale(.95); box-shadow:0 0 0 0 rgba(156,163,175,.5);} 70%{transform:scale(1); box-shadow:0 0 0 8px rgba(156,163,175,0);} 100%{transform:scale(.95); box-shadow:0 0 0 0 rgba(156,163,175,0);} }
+
+    .modal-backdrop { background: rgba(10,11,13,.75); backdrop-filter: blur(10px); }
+    .modal-pop { animation: pop .22s ease; }
+    @keyframes pop { from{opacity:0; transform: scale(.96) translateY(8px);} to {opacity:1; transform: scale(1) translateY(0);} }
+
+    .chip { font-size:.65rem; padding:.2rem .55rem; border-radius:999px; border:1px solid var(--border); color:var(--muted); transition: all .15s ease; cursor:pointer; }
+    .chip:hover { transform: translateY(-1px); }
+    .chip:active { transform: translateY(0) scale(.96); }
+    .avatar-upload { width:88px; height:88px; border-radius:999px; border:2px dashed #3a4048; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; background:#14171b; flex-shrink:0; }
+
+    /* ---- Micro-interactions (subtle, calm) ---- */
+    button, .nav-item, .chip, .btn-primary, .btn-ghost { will-change: transform; }
+    .btn-primary, .btn-accent { transition: filter .15s ease, transform .1s ease; }
+    .btn-primary:active, .btn-accent:active { transform: scale(.985); }
+    .nav-item:active { transform: scale(.98); }
+    .panel, .panel-2 { transition: border-color .2s ease; }
+    .lift-hover { transition: transform .18s ease, box-shadow .18s ease; }
+    .lift-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(0,0,0,.5); }
+    .copied-flash { animation: copiedFlash .5s ease; }
+    @keyframes copiedFlash { 0%{ background: rgba(148,163,184,.25); } 100%{ background: transparent; } }
+
+    /* ---- Distinct section accents (kept subtle, not a full re-theme) ---- */
+    .btn-accent { color:#0b0d10; font-weight:800; }
+    .btn-accent:hover { filter: brightness(1.08); }
+    .acc-interview  { background: linear-gradient(135deg,#93c5fd,#3b82f6); color:#0b1220; }
+    .acc-faq        { background: linear-gradient(135deg,#c4b5fd,#7c3aed); color:#fff; }
+    .acc-career     { background: linear-gradient(135deg,#6ee7b7,#059669); color:#052e21; }
+    .acc-cv         { background: linear-gradient(135deg,#fcd34d,#d97706); color:#3a2400; }
+    .acc-portfolio  { background: linear-gradient(135deg,#f9a8d4,#db2777); color:#3a0620; }
+    .acc-writing    { background: linear-gradient(135deg,#67e8f9,#0891b2); color:#042e33; }
+    .acc-summarizer { background: linear-gradient(135deg,#a5b4fc,#4f46e5); color:#fff; }
+    .acc-transcribe { background: linear-gradient(135deg,#5eead4,#0d9488); color:#042e28; }
+    .acc-montage    { background: linear-gradient(135deg,#fca5a5,#dc2626); color:#fff; }
+    .acc-profile    { background: linear-gradient(135deg,#93c5fd,#6366f1); color:#fff; }
+    .acc-donations  { background: linear-gradient(135deg,#fde68a,#f59e0b); color:#3a2400; }
+    .acc-subs       { background: linear-gradient(135deg,#c4b5fd,#8b5cf6); color:#fff; }
+    .acc-support    { background: linear-gradient(135deg,#86efac,#16a34a); color:#052e16; }
+
+    /* ---- Profile (LinkedIn-style) ---- */
+    .profile-cover { height: 110px; border-radius: 1rem 1rem 0 0; background: linear-gradient(120deg,#334155,#0f172a 60%,#1e293b); position: relative; overflow:hidden; }
+    .profile-cover::after { content:''; position:absolute; inset:0; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.08), transparent 60%); }
+    .profile-avatar-lg { width:96px; height:96px; border-radius:999px; border:4px solid var(--panel); background:#20252c; overflow:hidden; display:flex; align-items:center;justify-content:center; margin-top:14px; margin-inline-start:1.25rem; box-shadow:0 4px 18px rgba(0,0,0,.4); }
+    .points-badge { background: linear-gradient(135deg,#fde68a,#f59e0b); color:#3a2400; font-weight:800; }
+
+    .g-signin-btn { background:#fff; color:#3c4043; border:1px solid #dadce0; border-radius:999px; font-weight:600; padding:.65rem 1.25rem; font-size:.85rem; letter-spacing:.1px; box-shadow:0 1px 3px rgba(0,0,0,.15); transition: box-shadow .18s ease, transform .18s ease, background .18s ease; }
+    .g-signin-btn:hover { box-shadow:0 3px 10px rgba(0,0,0,.28); transform: translateY(-1px); background:#f8f9fa; }
+    .g-signin-btn:active { box-shadow:0 1px 2px rgba(0,0,0,.2); transform: translateY(0); }
+    .g-signin-btn svg { width:18px; height:18px; flex-shrink:0; }
+
+    /* ---- Signed-in account card (Profile) ---- */
+    .signedin-avatar { width:44px; height:44px; border-radius:999px; overflow:hidden; flex-shrink:0; background:#14171b; display:flex; align-items:center; justify-content:center; border:2px solid rgba(52,211,153,.55); box-shadow:0 0 0 3px rgba(52,211,153,.12); }
+    .signedin-avatar img { width:100%; height:100%; object-fit:cover; }
+    .signedin-badge { display:inline-flex; align-items:center; gap:.3rem; font-size:.62rem; font-weight:700; color:#34d399; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.3); padding:.15rem .55rem; border-radius:999px; }
+    .signedin-badge .dot { width:6px; height:6px; border-radius:999px; background:#34d399; box-shadow:0 0 0 2px rgba(52,211,153,.25); animation: dotPulse 2s ease-in-out infinite; }
+    @keyframes dotPulse { 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
+    .g-logout-btn { background:rgba(248,113,113,.08); color:#f87171; border:1px solid rgba(248,113,113,.3); border-radius:999px; font-weight:700; padding:.55rem 1.1rem; font-size:.78rem; letter-spacing:.1px; transition: background .18s ease, border-color .18s ease, transform .18s ease; white-space:nowrap; }
+    .g-logout-btn:hover { background:rgba(248,113,113,.16); border-color:rgba(248,113,113,.5); transform: translateY(-1px); }
+    .g-logout-btn:active { transform: translateY(0) scale(.97); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside id="sidebar" class="fixed lg:static top-0 right-0 h-full z-40 flex flex-col shrink-0">
+        <div class="flex items-center gap-2.5 px-4 py-4 border-b border-[var(--border)]">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-400 to-slate-600 flex items-center justify-center font-extrabold text-slate-950 text-base shrink-0">يس</div>
+            <div class="sidebar-label overflow-hidden">
+                <p class="font-tajawal font-bold text-sm text-slate-100 leading-tight">يُسْر Pro</p>
+                <p class="text-[10px] text-slate-500">YUSR Platform</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden mr-auto text-slate-500 hover:text-white px-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+            <div>
+                <p class="sidebar-section-title text-[10px] text-slate-600 font-bold px-2 mb-1.5" data-i18n="nav.section.interviews">المقابلات والتوظيف</p>
+                <div class="space-y-1">
+                    <div class="nav-item active" data-view="interview" onclick="switchView('interview', this)">
+                        <i class="fa-solid fa-comments"></i><span class="sidebar-label" data-i18n="nav.interview">مقابلة تدريبية صوتية</span>
+                    </div>
+                    <div class="nav-item" data-view="faq" onclick="switchView('faq', this)">
+                        <i class="fa-solid fa-circle-question"></i><span class="sidebar-label" data-i18n="nav.faq">أسئلة شائعة + إجابات نموذجية</span>
+                    </div>
+                    <div class="nav-item" data-view="career" onclick="switchView('career', this)">
+                        <i class="fa-solid fa-route"></i><span class="sidebar-label" data-i18n="nav.career">خطة التطور المهني</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="sidebar-section-title text-[10px] text-slate-600 font-bold px-2 mb-1.5" data-i18n="nav.section.documents">المستندات</p>
+                <div class="space-y-1">
+                    <div class="nav-item" data-view="cv" onclick="switchView('cv', this)">
+                        <i class="fa-solid fa-id-card"></i><span class="sidebar-label" data-i18n="nav.cv">بناء السيرة الذاتية</span>
+                    </div>
+                    <div class="nav-item" data-view="portfolio" onclick="switchView('portfolio', this)">
+                        <i class="fa-solid fa-briefcase"></i><span class="sidebar-label" data-i18n="nav.portfolio">بورتفوليو شخصي</span>
+                    </div>
+                    <div class="nav-item" data-view="writing" onclick="switchView('writing', this)">
+                        <i class="fa-solid fa-spell-check"></i><span class="sidebar-label" data-i18n="nav.writing">تدقيق وتنسيق أكاديمي</span>
+                    </div>
+                    <div class="nav-item" data-view="summarizer" onclick="switchView('summarizer', this)">
+                        <i class="fa-solid fa-file-lines"></i><span class="sidebar-label" data-i18n="nav.summarizer">تلخيص المستندات</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="sidebar-section-title text-[10px] text-slate-600 font-bold px-2 mb-1.5" data-i18n="nav.section.audio">الصوت والفيديو</p>
+                <div class="space-y-1">
+                    <div class="nav-item" data-view="transcribe" onclick="switchView('transcribe', this)">
+                        <i class="fa-solid fa-microphone-lines"></i><span class="sidebar-label" data-i18n="nav.transcribe">تفريغ الصوت إلى نص</span>
+                    </div>
+                    <div class="nav-item" data-view="montage" onclick="switchView('montage', this)">
+                        <i class="fa-solid fa-clapperboard"></i><span class="sidebar-label" data-i18n="nav.montage">مونتاج فيديو بالذكاء الاصطناعي</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="sidebar-section-title text-[10px] text-slate-600 font-bold px-2 mb-1.5" data-i18n="nav.section.account">الحساب والدعم</p>
+                <div class="space-y-1">
+                    <div class="nav-item" data-view="profile" onclick="switchView('profile', this)">
+                        <i class="fa-solid fa-user"></i><span class="sidebar-label" data-i18n="nav.profile">الملف الشخصي</span>
+                    </div>
+                    <div class="nav-item" data-view="subscriptions" onclick="switchView('subscriptions', this)">
+                        <i class="fa-solid fa-gem"></i><span class="sidebar-label" data-i18n="nav.subscriptions">الاشتراكات</span>
+                    </div>
+                    <div class="nav-item" data-view="donations" onclick="switchView('donations', this)">
+                        <i class="fa-solid fa-hand-holding-heart"></i><span class="sidebar-label" data-i18n="nav.donations">التبرعات</span>
+                    </div>
+                    <div class="nav-item" data-view="support" onclick="switchView('support', this)">
+                        <i class="fa-solid fa-headset"></i><span class="sidebar-label" data-i18n="nav.support">الدعم والتواصل</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-3 border-t border-[var(--border)] space-y-2">
+            <div id="account-chip" class="panel-2 rounded-xl px-2.5 py-2 flex items-center gap-2 cursor-pointer" onclick="switchViewByName('profile')">
+                <div id="account-avatar" class="w-7 h-7 rounded-full bg-[#2a2f36] flex items-center justify-center text-[10px] text-slate-400 shrink-0 overflow-hidden">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="sidebar-label overflow-hidden flex-1 min-w-0">
+                    <p id="account-name" class="text-[11px] font-bold text-slate-200 truncate" data-i18n="account.guest">زائر (الجهاز ده)</p>
+                    <p id="account-sub" class="text-[9.5px] text-slate-500 truncate" data-i18n="account.signinHint">سجّل دخول بجوجل لحفظ صورتك ونقاطك</p>
+                </div>
+            </div>
+            <div class="panel-2 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="sidebar-label text-[10px] text-slate-400" data-i18n="trial.left">المحاولات المتبقية</span>
+                <b id="trial-left" class="text-slate-200 text-xs">2</b>
+            </div>
+            <button onclick="openPricingModal()" class="w-full btn-primary text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-crown"></i><span class="sidebar-label" data-i18n="trial.upgrade">ترقية للباقة الكاملة</span>
+            </button>
+        </div>
+    </aside>
+
+    <div id="sidebar-overlay" class="sidebar-overlay hidden fixed inset-0 bg-black/50 z-30 lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- ============ MAIN ============ -->
+    <div class="flex-1 flex flex-col min-w-0">
+        <header class="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3.5 panel border-b">
+            <button onclick="toggleSidebar()" class="lg:hidden text-slate-300 text-lg"><i class="fa-solid fa-bars"></i></button>
+            <h1 id="view-title" class="font-tajawal font-bold text-sm sm:text-base text-slate-100">مقابلة تدريبية صوتية</h1>
+            <div class="mr-auto flex items-center gap-2">
+                <button onclick="switchViewByName('support')" title="الدعم الفني" class="w-8 h-8 rounded-lg btn-ghost flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-headset"></i>
+                </button>
+                <select id="lang-picker" class="input-field rounded-lg text-[11px] px-2 py-1.5" onchange="setAppLanguage(this.value)">
+                    <option value="ar-EG">العربية (مصر)</option>
+                    <option value="ar-SA">العربية (خليجي)</option>
+                    <option value="en-US">English</option>
+                    <option value="fr-FR">Français</option>
+                    <option value="es-ES">Español</option>
+                    <option value="tr-TR">Türkçe</option>
+                    <option value="de-DE">Deutsch</option>
+                    <option value="hi-IN">हिन्दी</option>
+                    <option value="ur-PK">اردو</option>
+                    <option value="fa-IR">فارسی</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="flex-1 p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-4">
+
+            <!-- ================= INTERVIEW ================= -->
+            <section id="view-interview" class="view active">
+                <div class="panel rounded-2xl p-4 sm:p-5 flex flex-col space-y-3">
+                    <div class="flex justify-between items-center border-b border-[var(--border)] pb-2.5">
+                        <p class="text-xs text-slate-400" data-i18n="interview.desc">تدرّب على مقابلة شفهية حقيقية بالصوت مع تقييم أداء تفصيلي في النهاية.</p>
+                        <button onclick="openCvModal()" class="chip hover:bg-[var(--panel-2)] shrink-0">
+                            <i class="fa-solid fa-id-card"></i> <span data-i18n="interview.linkCv">ربط الـ CV</span>
+                        </button>
+                    </div>
+
+                    <div id="interview-setup-box" class="space-y-4 py-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1.5" data-i18n="interview.roleLabel">الوظيفة المستهدفة</label>
+                                <input type="text" id="interview-role" data-i18n-ph="interview.rolePh" placeholder="مثلاً: مبيعات عقارات، خدمة عملاء، برمجة..." class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1.5" data-i18n="interview.personaLabel">شخصية المحاور</label>
+                                <select id="interviewer-nationality" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                                    <option value="رجل مصري طبيعي بلهجة عامية مصرية هادئة">رجل مصري (HR مصري)</option>
+                                    <option value="رجل سعودي بلهجة عامية سعودية">رجل سعودي (HR خليجي)</option>
+                                    <option value="لغة عربية فصحى رسمية">محيط رسمي (فصحى)</option>
+                                    <option value="a calm professional English-speaking HR manager">English HR (Professional)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="startInterviewSession()" class="w-full py-3 btn-accent acc-interview font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-play"></i> <span data-i18n="interview.start">ابدأ الجلسة</span>
+                        </button>
+                    </div>
+
+                    <div id="chat-interface" class="hidden flex-col space-y-3">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="copyChatTranscript()" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-copy"></i> <span data-i18n="copy">نسخ المحادثة</span></button>
+                            <button onclick="screenshotElement('chat-history', 'yusr-interview-chat.png')" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-camera"></i> تصوير المحادثة</button>
+                            <button onclick="downloadChatTranscript()" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-download"></i> <span data-i18n="download">تنزيل</span></button>
+                        </div>
+                        <div id="chat-history" class="h-[320px] sm:h-[380px] overflow-y-auto space-y-3 p-3 panel-2 rounded-xl flex-1"></div>
+                        <div id="ai-speaking-indicator" class="hidden flex items-center justify-center gap-2 text-[11px] text-slate-300 panel-2 py-1.5 rounded-lg">
+                            <span class="w-2 h-2 rounded-full bg-slate-300 pulse-voice"></span>
+                            <span id="status-text" data-i18n="interview.speaking">المحاور يتحدث الآن...</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <button id="mic-btn" onclick="toggleMic()" title="تحدث بصوتك" class="w-10 h-10 rounded-xl panel-2 text-slate-300 hover:text-white flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-microphone text-sm"></i>
+                            </button>
+                            <input type="text" id="user-chat-input" onkeypress="handleKeyPress(event)" data-i18n-ph="interview.inputPh" placeholder="تحدث بالميكروفون أو اكتب هنا..." class="flex-1 input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            <button onclick="sendUserAnswer()" class="btn-accent acc-interview w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                            <button onclick="generatePerformanceReport()" class="bg-amber-500/15 text-amber-300 border border-amber-500/25 font-bold px-3 py-2.5 rounded-xl text-xs shrink-0" title="تقييم الأداء">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 text-center" data-i18n="interview.reportHint">التقييم يحلل ردودك النصية + سرعة كلامك وعدد كلمات التردد لو تحدثت بالميكروفون.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= FAQ / MODEL ANSWERS ================= -->
+            <section id="view-faq" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <p class="text-xs text-slate-400" data-i18n="faq.desc">اكتب الوظيفة والمجال، وهنجهزلك بنك أسئلة شائعة حقيقي مع إجابات نموذجية مقنعة تزود فرصتك في القبول.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="faq-role" data-i18n-ph="faq.rolePh" placeholder="مثلاً: مسؤول مبيعات عقارات" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                        <select id="faq-count" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            <option value="8">8 أسئلة</option>
+                            <option value="12" selected>12 سؤال</option>
+                            <option value="18">18 سؤال</option>
+                        </select>
+                    </div>
+                    <button onclick="runFaqGenerator()" class="w-full py-3 btn-accent acc-faq font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> <span data-i18n="faq.run">جهّز الأسئلة والإجابات</span>
+                    </button>
+                    <div id="faq-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                </div>
+            </section>
+
+            <!-- ================= CAREER PLAN ================= -->
+            <section id="view-career" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <p class="text-xs text-slate-400" data-i18n="career.desc">قولنا وضعك الحالي والهدف اللي عايز توصله، وهنبنيلك خطة تطور عملية بخطوات واقعية.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5" data-i18n="career.currentLabel">وضعك الحالي</label>
+                            <input type="text" id="career-current" data-i18n-ph="career.currentPh" placeholder="مثلاً: محاسب سنة أولى خبرة" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5" data-i18n="career.targetLabel">هدفك</label>
+                            <input type="text" id="career-target" data-i18n-ph="career.targetPh" placeholder="مثلاً: عايز أتحول لمجال تحليل البيانات" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                        </div>
+                    </div>
+                    <textarea id="career-context" rows="3" data-i18n-ph="career.contextPh" placeholder="اي تفاصيل إضافية تفيد (مهاراتك الحالية، الوقت المتاح للدراسة، إلخ) - اختياري" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                    <button onclick="runCareerPlanner()" class="w-full py-3 btn-accent acc-career font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-route"></i> <span data-i18n="career.run">ابنِ خطتي</span>
+                    </button>
+                    <div id="career-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                </div>
+            </section>
+
+            <!-- ================= CV BUILDER (two separate modes) ================= -->
+            <section id="view-cv" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="grid grid-cols-2 gap-2 p-1 panel-2 rounded-xl">
+                        <button id="cv-tab-btn-plain" onclick="switchCvTab('plain')" class="py-2.5 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#2a2f36] text-slate-100 shadow-[inset_0_0_0_1px_#3a4048]">
+                            <i class="fa-solid fa-file-lines"></i> سيرة ذاتية عادية (بدون صورة)
+                        </button>
+                        <button id="cv-tab-btn-linkedin" onclick="switchCvTab('linkedin')" class="py-2.5 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-slate-200">
+                            <i class="fa-brands fa-linkedin"></i> ستايل لينكد إن (بصورة)
+                        </button>
+                    </div>
+
+                    <!-- ===== TAB 1: PLAIN CV - NO PHOTO ===== -->
+                    <div id="cv-tab-plain" class="space-y-3">
+                        <div class="panel-2 rounded-xl px-3 py-2 text-[11px] text-slate-400 flex items-start gap-2">
+                            <i class="fa-solid fa-circle-info mt-0.5 text-slate-500"></i>
+                            <span>سيرة ذاتية نصية عادية بدون صورة خالص — نص احترافي جاهز للنسخ مباشرة في Word أو أي مكان تاني.</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="text" id="cv-plain-name" placeholder="الاسم الكامل" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            <input type="text" id="cv-plain-title" placeholder="المسمى الوظيفي المستهدف" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                        </div>
+                        <textarea id="cv-plain-experience" rows="4" placeholder="خبراتك العملية (الوظائف، المدة، أهم الإنجازات)" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                        <textarea id="cv-plain-education" rows="2" placeholder="المؤهلات الدراسية والشهادات" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                        <textarea id="cv-plain-skills" rows="2" placeholder="المهارات (افصل بينها بفاصلة)" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+
+                        <button onclick="runCvBuilder('plain')" class="w-full py-3 btn-accent acc-cv font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> صِغ السيرة الذاتية العادية
+                        </button>
+                        <div id="cv-result-plain" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                    </div>
+
+                    <!-- ===== TAB 2: LINKEDIN-STYLE - WITH PHOTO ===== -->
+                    <div id="cv-tab-linkedin" class="hidden space-y-3">
+                        <div class="panel-2 rounded-xl px-3 py-2 text-[11px] text-slate-400 flex items-start gap-2">
+                            <i class="fa-solid fa-circle-info mt-0.5 text-slate-500"></i>
+                            <span>نسخة بستايل لينكد إن: صورة شخصية فوق، وتحتها قائمة بيانات التواصل زي لينكد إن بالظبط، وبعدين محتوى السيرة الذاتية.</span>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center gap-2 py-2">
+                            <label class="avatar-upload" for="cv-li-photo-input">
+                                <img id="cv-li-photo-preview" class="hidden w-full h-full object-cover" />
+                                <i id="cv-li-photo-icon" class="fa-solid fa-camera text-slate-600"></i>
+                            </label>
+                            <input type="file" id="cv-li-photo-input" accept="image/*" class="hidden" onchange="previewCvLiPhoto(event)">
+                            <p class="text-[10.5px] text-slate-500 max-w-xs">صورتك بتتحفظ في المتصفح بتاعك بس ومش بتتبعت لأي مكان.</p>
+
+                            <!-- Contact list under the photo, LinkedIn-style -->
+                            <div class="w-full max-w-sm panel-2 rounded-xl p-3 space-y-2 mt-1 text-right">
+                                <p class="text-[10px] text-slate-500 font-bold flex items-center gap-1.5 justify-center"><i class="fa-solid fa-address-card"></i> معلومات التواصل</p>
+                                <input type="text" id="cv-li-phone" placeholder="رقم الهاتف" class="w-full input-field rounded-lg px-3 py-2 text-xs">
+                                <input type="text" id="cv-li-email" placeholder="البريد الإلكتروني" class="w-full input-field rounded-lg px-3 py-2 text-xs">
+                                <input type="text" id="cv-li-linkedin" placeholder="رابط لينكد إن أو حسابك المهني" class="w-full input-field rounded-lg px-3 py-2 text-xs" dir="ltr">
+                                <input type="text" id="cv-li-location" placeholder="المدينة / الدولة" class="w-full input-field rounded-lg px-3 py-2 text-xs">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="text" id="cv-li-name" placeholder="الاسم الكامل" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            <input type="text" id="cv-li-title" placeholder="المسمى الوظيفي المستهدف" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                        </div>
+                        <textarea id="cv-li-experience" rows="4" placeholder="خبراتك العملية (الوظائف، المدة، أهم الإنجازات)" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                        <textarea id="cv-li-education" rows="2" placeholder="المؤهلات الدراسية والشهادات" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                        <textarea id="cv-li-skills" rows="2" placeholder="المهارات (افصل بينها بفاصلة)" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+
+                        <button onclick="runCvBuilder('linkedin')" class="w-full py-3 btn-accent acc-cv font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-linkedin"></i> صِغ السيرة بستايل لينكد إن
+                        </button>
+                        <div id="cv-result-linkedin" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= PORTFOLIO (guided AI Q&A) ================= -->
+            <section id="view-portfolio" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="panel-2 rounded-xl px-3 py-2 text-[11px] text-slate-400 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-slate-500"></i>
+                        <span data-i18n="pf.notice">هيسألك الذكاء الاصطناعي كام سؤال بسيط عن مجالك ومشاريعك عشان يجهّزلك محتوى بورتفوليو احترافي مخصص — نص جاهز للنسخ تحطه في أي موقع بورتفوليو أو تصممه بنفسك، مش موقع جاهز بتصميم فعلي.</span>
+                    </div>
+
+                    <div id="pf-setup-box" class="space-y-3 py-2">
+                        <input type="text" id="pf-field" data-i18n-ph="pf.fieldPh" placeholder="مجالك (مصمم، مبرمج، مسوّق، كاتب محتوى...)" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                        <button onclick="startPortfolioChat()" class="w-full py-3 btn-accent acc-portfolio font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-briefcase"></i> <span data-i18n="pf.start">ابدأ - خلي الذكاء الاصطناعي يسألني</span>
+                        </button>
+                    </div>
+
+                    <div id="pf-chat-interface" class="hidden flex-col space-y-3">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="copyPfTranscript()" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-copy"></i> <span data-i18n="copy">نسخ</span></button>
+                            <button onclick="screenshotElement('pf-chat-history', 'yusr-portfolio-chat.png')" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-camera"></i> تصوير</button>
+                        </div>
+                        <div id="pf-chat-history" class="h-[260px] sm:h-[320px] overflow-y-auto space-y-3 p-3 panel-2 rounded-xl"></div>
+                        <div class="flex gap-2 items-center">
+                            <input type="text" id="pf-chat-input" onkeypress="if(event.key==='Enter') sendPortfolioAnswer()" data-i18n-ph="pf.inputPh" placeholder="اكتب ردّك هنا..." class="flex-1 input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            <button onclick="sendPortfolioAnswer()" class="btn-accent acc-portfolio w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                        <button onclick="runPortfolioBuilder()" class="w-full py-2.5 btn-accent acc-portfolio font-bold text-xs rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="pf.generate">كفاية أسئلة - جهّز البورتفوليو الآن</span>
+                        </button>
+                    </div>
+                    <div id="portfolio-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                </div>
+            </section>
+
+            <!-- ================= ACADEMIC WRITING ================= -->
+            <section id="view-writing" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="panel-2 rounded-xl px-3 py-2 text-[11px] text-slate-400 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-slate-500"></i>
+                        <span data-i18n="writing.notice">مراجعة لغوية وتدقيق واقتراح تنسيق (هوامش، فهارس، أسلوب التوثيق مثل APA/Harvard) كتوصيات نصية تطبّقها بنفسك في Word — مش أداة تنسيق آلي للملف.</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <select id="writing-mode" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                            <option value="تدقيق إملائي ونحوي شامل">تدقيق إملائي ونحوي</option>
+                            <option value="اقتراح تنسيق أكاديمي حسب أسلوب APA">تنسيق أكاديمي (APA)</option>
+                            <option value="اقتراح تنسيق أكاديمي حسب أسلوب Harvard">تنسيق أكاديمي (Harvard)</option>
+                        </select>
+                        <input type="text" id="writing-topic" data-i18n-ph="writing.topicPh" placeholder="موضوع البحث (اختياري - يفيد في اقتراح مصادر)" class="input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                    </div>
+                    <textarea id="writing-input" rows="8" data-i18n-ph="writing.inputPh" placeholder="الصق نص البحث أو المقال هنا..." class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                    <button onclick="runWritingReview()" class="w-full py-3 btn-accent acc-writing font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-spell-check"></i> <span data-i18n="writing.run">راجع النص</span>
+                    </button>
+                    <div id="writing-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                </div>
+            </section>
+
+            <!-- ================= SUMMARIZER ================= -->
+            <section id="view-summarizer" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <p class="text-xs text-slate-400" data-i18n="sum.desc">لخّص أي تقرير أو مقال أو محاضرة في ثواني.</p>
+                        <select id="summary-style" class="input-field rounded-xl px-2.5 py-1.5 text-[11px]">
+                            <option value="نقاط مختصرة">نقاط مختصرة</option>
+                            <option value="فقرة واحدة مركزة">فقرة واحدة</option>
+                            <option value="ملخص تفصيلي منظم بعناوين">ملخص تفصيلي</option>
+                        </select>
+                    </div>
+                    <textarea id="summarizer-input" rows="7" data-i18n-ph="sum.inputPh" placeholder="الصق النص هنا..." class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                    <button onclick="runSummarizer()" class="w-full py-3 btn-accent acc-summarizer font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="sum.run">لخّص الآن</span>
+                    </button>
+                    <div id="summarizer-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[420px] overflow-y-auto"></div>
+                </div>
+            </section>
+
+            <!-- ================= TRANSCRIBE ================= -->
+            <section id="view-transcribe" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="panel-2 rounded-xl px-3 py-2 text-[11px] text-slate-400 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-slate-500"></i>
+                        <span data-i18n="tr.notice">تقدر ترفع ملف صوت جاهز (mp3, m4a, wav...) فيتفرّغ تلقائياً بالذكاء الاصطناعي، أو تسجل مباشرة بالمايك، أو تلصق نص جاهز. دقة التفريغ بتختلف حسب جودة الصوت والضوضاء المحيطة - راجع النص بعدها للتأكد.</span>
+                    </div>
+
+                    <div class="border-2 border-dashed border-[var(--border)] rounded-xl p-4 text-center space-y-2">
+                        <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden" onchange="handleAudioFileUpload(event)">
+                        <label for="audio-file-input" class="inline-flex items-center gap-2 btn-accent acc-transcribe font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
+                            <i class="fa-solid fa-file-arrow-up"></i> <span data-i18n="tr.uploadBtn">ارفع ملف صوتي وفرّغه تلقائياً</span>
+                        </label>
+                        <p id="audio-upload-status" class="text-[11px] text-slate-500" data-i18n="tr.uploadHint">مفيش ملف مرفوع لسه</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5" data-i18n="tr.sourceLangLabel">لغة الكلام المصدر</label>
+                            <select id="transcribe-source-lang" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                                <option value="ar-EG">العربية (مصر)</option>
+                                <option value="ar-SA">العربية (خليجي)</option>
+                                <option value="en-US">English</option>
+                                <option value="fr-FR">Français</option>
+                                <option value="es-ES">Español</option>
+                                <option value="tr-TR">Türkçe</option>
+                                <option value="de-DE">Deutsch</option>
+                                <option value="hi-IN">हिन्दी</option>
+                                <option value="ur-PK">اردو</option>
+                                <option value="fa-IR">فارسی</option>
+                                <option value="ru-RU">Русский</option>
+                                <option value="zh-CN">中文</option>
+                                <option value="ja-JP">日本語</option>
+                                <option value="pt-PT">Português</option>
+                                <option value="it-IT">Italiano</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5" data-i18n="tr.targetLangLabel">ترجم النص النهائي إلى (اختياري)</label>
+                            <select id="transcribe-target-lang" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                                <option value="">بدون ترجمة - نفس اللغة</option>
+                                <option value="العربية الفصحى">العربية</option>
+                                <option value="English">English</option>
+                                <option value="Français">Français</option>
+                                <option value="Español">Español</option>
+                                <option value="Türkçe">Türkçe</option>
+                                <option value="Deutsch">Deutsch</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="transcribe-mic-btn" onclick="toggleTranscribeMic()" class="w-12 h-12 rounded-xl panel-2 text-slate-300 hover:text-white flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <p id="transcribe-status" class="text-xs text-slate-500" data-i18n="tr.micHint">اضغط للتسجيل، أو ارفع ملف فوق، أو الصق نص جاهز تحت.</p>
+                    </div>
+                    <textarea id="transcribe-raw" rows="6" data-i18n-ph="tr.rawPh" placeholder="النص الخام هيظهر هنا أثناء الكلام أو بعد رفع الملف، وتقدر كمان تلصق نص جاهز مباشرة" class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                    <button onclick="runTranscribeCleanup()" class="w-full py-3 btn-accent acc-transcribe font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-broom"></i> <span data-i18n="tr.run">نظّف وحسّن التنسيق</span>
+                    </button>
+                    <div id="transcribe-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[380px] overflow-y-auto"></div>
+                </div>
+            </section>
+
+            <!-- ================= VIDEO MONTAGE (AI edit plan + basic trim) ================= -->
+            <section id="view-montage" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="panel-2 rounded-xl px-3 py-2 text-[11px] text-slate-400 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-slate-500"></i>
+                        <span data-i18n="mo.notice">ارفع فيديوك واكتب تعليماتك بالظبط (مثلاً: مونتاج جيمنج سريع الإيقاع، أو فيديو نصايح هادي). الذكاء الاصطناعي بيحلل طلبك ويجهّزلك "خطة مونتاج احترافية" مفصّلة، وبعدها تقدر تدوس "نفّذ المونتاج" عشان يتنفذ فعلياً جوه المتصفح (قص، سرعة، تلاشي دخول/خروج) وينزّلك فيديو جاهز حقيقي مش نص خطة بس. ملحوظة بالصراحة: التنفيذ الآلي بيغطي القص والسرعة والتلاشي والإيقاع بناءً على تعليماتك، أما التأثيرات البصرية المعقدة والألوان والموسيقى المخصصة فلسه محتاجة برنامج مونتاج حقيقي أو مونتير — الخطة النصية بتوجهك بالتفصيل لعملها.</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5" data-i18n="mo.uploadLabel">ارفع الفيديو</label>
+                            <input type="file" id="mo-video-input" accept="video/*" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm" onchange="handleMontageVideoUpload(event)">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5" data-i18n="mo.typeLabel">نوع المحتوى</label>
+                            <select id="mo-type" class="w-full input-field rounded-xl px-3.5 py-2.5 text-xs sm:text-sm">
+                                <option value="مقطع ألعاب (Gaming Highlights)">ألعاب / Gaming Highlights</option>
+                                <option value="فيديو نصائح تعليمي">فيديو نصائح / تعليمي</option>
+                                <option value="فلوق يومي (Vlog)">فلوق يومي (Vlog)</option>
+                                <option value="إعلان تسويقي قصير">إعلان تسويقي قصير</option>
+                                <option value="ريلز / محتوى سوشيال ميديا سريع">ريلز / سوشيال ميديا سريع</option>
+                            </select>
+                        </div>
+                    </div>
+                    <video id="mo-video-preview" class="hidden w-full rounded-xl max-h-64 bg-black" controls></video>
+                    <textarea id="mo-instructions" rows="4" data-i18n-ph="mo.instructionsPh" placeholder="اكتب تعليماتك بالظبط: اعمل كذا، شيل كذا، حط موسيقى كذا، الإيقاع يبقى سريع/هادي..." class="w-full input-field rounded-xl p-3 text-xs sm:text-sm resize-none"></textarea>
+                    <button onclick="runMontagePlanner()" class="w-full py-3 btn-accent acc-montage font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-clapperboard"></i> <span data-i18n="mo.run">جهّز خطة المونتاج الاحترافية</span>
+                    </button>
+                    <div id="montage-result" class="hidden panel-2 rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed max-h-[380px] overflow-y-auto"></div>
+
+                    <div id="mo-auto-box" class="hidden panel-2 rounded-xl p-3.5 space-y-2 border border-[var(--border)]">
+                        <p class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> تنفيذ المونتاج فعلياً</p>
+                        <p class="text-[10.5px] text-slate-500">الذكاء الاصطناعي هيحدد أنسب قص وسرعة وتلاشي بناءً على تعليماتك فوق، والمتصفح هيعالج الفيديو ويطلعلك ملف فيديو مُعدّل حقيقي تقدر تحمّله فوراً (أول مرة ممكن تاخد شوية وقت لتحميل محرّك المعالجة).</p>
+                        <button onclick="runAutoEditVideo()" class="w-full py-2.5 btn-accent acc-montage font-bold text-xs rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-clapperboard"></i> نفّذ المونتاج وحمّل الفيديو الجاهز
+                        </button>
+                        <p id="mo-auto-status" class="text-[10px] text-slate-500"></p>
+                        <video id="mo-auto-output" class="hidden w-full rounded-xl max-h-64 bg-black mt-2" controls></video>
+                    </div>
+
+                    <div id="mo-trim-box" class="hidden panel-2 rounded-xl p-3.5 space-y-2">
+                        <p class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-scissors"></i> <span data-i18n="mo.trimTitle">أداة قص يدوي بسيطة (بديل احتياطي)</span></p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] text-slate-500 mb-1" data-i18n="mo.trimStart">بداية القص (ثانية)</label>
+                                <input type="number" id="mo-trim-start" min="0" value="0" class="w-full input-field rounded-lg px-2.5 py-1.5 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-500 mb-1" data-i18n="mo.trimEnd">نهاية القص (ثانية)</label>
+                                <input type="number" id="mo-trim-end" min="0" value="5" class="w-full input-field rounded-lg px-2.5 py-1.5 text-xs">
+                            </div>
+                        </div>
+                        <button onclick="exportMontageTrim()" class="w-full py-2 btn-accent acc-montage font-bold text-xs rounded-xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> <span data-i18n="mo.trimExport">صدّر المقطع المقصوص</span>
+                        </button>
+                        <p id="mo-trim-status" class="text-[10px] text-slate-500"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= PROFILE (LinkedIn-style) ================= -->
+            <section id="view-profile" class="view">
+                <div class="panel rounded-2xl overflow-hidden">
+                    <div class="profile-cover"></div>
+                    <div class="px-4 sm:px-5 pb-5 space-y-4">
+                        <div class="flex items-end justify-between">
+                            <label for="profile-photo-input" class="profile-avatar-lg cursor-pointer flex items-center justify-center">
+                                <img id="profile-photo-preview" class="hidden w-full h-full object-cover" />
+                                <i id="profile-photo-icon" class="fa-solid fa-camera text-slate-500"></i>
+                            </label>
+                            <input type="file" id="profile-photo-input" accept="image/*" class="hidden" onchange="handleProfilePhotoUpload(event)">
+                            <div class="mb-1">
+                                <span id="profile-points" class="points-badge text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-star"></i> <span id="profile-points-count">0</span> <span data-i18n="profile.points">نقطة</span></span>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="text" id="profile-name" data-i18n-ph="profile.namePh" placeholder="اسمك الكامل" class="input-field rounded-xl px-3.5 py-2 text-sm font-bold w-full sm:w-72">
+                            <input type="text" id="profile-title" data-i18n-ph="profile.titlePh" placeholder="المسمى الوظيفي (مثلاً: مطوّر واجهات أمامية)" class="input-field rounded-xl px-3.5 py-2 text-xs w-full sm:w-72 mt-2">
+                        </div>
+
+                        <div id="google-signin-area" class="panel-2 rounded-xl p-3 flex items-center gap-3">
+                            <div id="g_id_signin_container"></div>
+                            <button onclick="mockGoogleSignIn()" class="g-signin-btn flex items-center gap-2">
+                                <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                                <span data-i18n="profile.googleBtn">تسجيل الدخول بحساب جوجل</span>
+                            </button>
+                            <p class="text-[10.5px] text-slate-500 flex-1" data-i18n="profile.googleHint">تسجيل الدخول بيحفظ اسمك وصورتك ونقاطك على نفس الجهاز — المحاولات المجانية بتُحسب على الجهاز/المتصفح مش على الحساب.</p>
+                        </div>
+
+                        <div id="google-signedin-area" class="hidden panel-2 rounded-xl p-3 flex items-center gap-3">
+                            <div class="signedin-avatar">
+                                <img id="signedin-avatar-img" class="hidden" />
+                                <i id="signedin-avatar-icon" class="fa-solid fa-user text-slate-500"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p id="signedin-name" class="text-xs font-bold text-slate-100 truncate">-</p>
+                                    <span class="signedin-badge"><span class="dot"></span><span data-i18n="profile.connected">متصل بجوجل</span></span>
+                                </div>
+                                <p id="signedin-email" class="text-[10.5px] text-slate-500 truncate">-</p>
+                            </div>
+                            <button onclick="logoutAccount()" class="g-logout-btn flex items-center gap-2 shrink-0">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <span data-i18n="profile.logoutBtn">تسجيل الخروج</span>
+                            </button>
+                        </div>
+
+                        <button onclick="saveProfileInfo()" class="btn-accent acc-profile font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="profile.save">حفظ البيانات</span>
+                        </button>
+
+                        <div class="grid grid-cols-3 gap-3 pt-2 border-t border-[var(--border)]">
+                            <div class="panel-2 rounded-xl p-3 text-center">
+                                <p id="profile-stat-usage" class="text-lg font-bold text-slate-100">0</p>
+                                <p class="text-[10px] text-slate-500" data-i18n="profile.statUsage">مرات استخدام الأدوات</p>
+                            </div>
+                            <div class="panel-2 rounded-xl p-3 text-center">
+                                <p id="profile-stat-device" class="text-[11px] font-bold text-slate-100 truncate">-</p>
+                                <p class="text-[10px] text-slate-500" data-i18n="profile.statDevice">معرّف الجهاز</p>
+                            </div>
+                            <div class="panel-2 rounded-xl p-3 text-center">
+                                <p id="profile-stat-plan" class="text-[11px] font-bold text-slate-100" data-i18n="profile.planFree">مجاني</p>
+                                <p class="text-[10px] text-slate-500" data-i18n="profile.statPlan">باقتك الحالية</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account overview: subscriptions, purchases, totals -->
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-4 mt-4" id="profile-account-panel">
+                    <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-wallet"></i> نظرة عامة على حسابك</h3>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="panel-2 rounded-xl p-3.5 text-center">
+                            <p id="profile-current-plan" class="text-sm font-bold text-slate-100">مجاني</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">باقتك الحالية</p>
+                        </div>
+                        <div class="panel-2 rounded-xl p-3.5 text-center">
+                            <p id="profile-total-count" class="text-sm font-bold text-slate-100">0</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">عدد الاشتراكات/المشتريات</p>
+                        </div>
+                        <div class="panel-2 rounded-xl p-3.5 text-center col-span-2 sm:col-span-1 border border-amber-500/25">
+                            <p id="profile-total-spent" class="text-sm font-bold text-amber-300">0 ج.م</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">إجمالي المدفوع على حسابك</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-gem"></i> الاشتراكات والمشتريات</p>
+                            <button onclick="openPricingModal()" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-plus"></i> اشترك في باقة</button>
+                        </div>
+                        <div id="profile-purchases-list" class="space-y-2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SUBSCRIPTIONS ================= -->
+            <section id="view-subscriptions" class="view">
+                <div class="space-y-4">
+                    <div class="panel rounded-2xl p-4 sm:p-5 space-y-1">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-user"></i> <span data-i18n="subs.individualTitle">باقات الأفراد</span></h3>
+                        <p class="text-xs text-slate-400" data-i18n="subs.individualDesc">لكل حد بيحضّر لمقابلة أو بيبني مسيرته المهنية بنفسه.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="panel-2 rounded-xl p-4 space-y-2 lift-hover">
+                            <h4 class="text-xs font-bold text-slate-200" data-i18n="subs.basicName">الأساسية</h4>
+                            <p class="text-lg font-bold text-white">99 <span class="text-xs">ج.م</span> <span class="text-[10px] text-slate-500" data-i18n="subs.perMonth">/ شهرياً</span></p>
+                            <ul class="text-[10.5px] text-slate-400 space-y-1.5">
+                                <li><i class="fa-solid fa-check text-slate-400"></i> 15 مقابلة تدريبية شهرياً</li>
+                                <li><i class="fa-solid fa-check text-slate-400"></i> بناء سيرة ذاتية غير محدود</li>
+                                <li><i class="fa-solid fa-check text-slate-400"></i> أسئلة شائعة لكل وظيفة</li>
+                            </ul>
+                            <button onclick="openPricingModal()" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl" data-i18n="subs.subscribe">اشترك الآن</button>
+                        </div>
+                        <div class="rounded-xl p-4 space-y-2 border-2 border-violet-400 relative bg-[#20252c] lift-hover">
+                            <span class="absolute top-0 left-0 bg-violet-400 text-slate-950 text-[9px] font-bold px-2 py-0.5 rounded-br-lg rounded-tl-xl" data-i18n="subs.popular">الأكثر طلباً</span>
+                            <h4 class="text-xs font-bold text-slate-100" data-i18n="subs.proName">الاحترافية</h4>
+                            <p class="text-lg font-bold text-white">199 <span class="text-xs">ج.م</span> <span class="text-[10px] text-slate-500" data-i18n="subs.perMonth">/ شهرياً</span></p>
+                            <ul class="text-[10.5px] text-slate-300 space-y-1.5">
+                                <li><i class="fa-solid fa-check text-slate-300"></i> كل أدوات المنصة بلا حدود</li>
+                                <li><i class="fa-solid fa-check text-slate-300"></i> تقارير أداء تفصيلية</li>
+                                <li><i class="fa-solid fa-check text-slate-300"></i> مونتاج + تفريغ صوتي غير محدود</li>
+                                <li><i class="fa-solid fa-check text-slate-300"></i> أولوية دعم فني</li>
+                            </ul>
+                            <button onclick="openPricingModal()" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl" data-i18n="subs.subscribe">اشترك الآن</button>
+                        </div>
+                        <div class="panel-2 rounded-xl p-4 space-y-2 lift-hover">
+                            <h4 class="text-xs font-bold text-slate-200" data-i18n="subs.yearlyName">السنوية</h4>
+                            <p class="text-lg font-bold text-white">1499 <span class="text-xs">ج.م</span> <span class="text-[10px] text-slate-500" data-i18n="subs.perYear">/ سنوياً</span></p>
+                            <ul class="text-[10.5px] text-slate-400 space-y-1.5">
+                                <li><i class="fa-solid fa-check text-slate-400"></i> كل مزايا الاحترافية</li>
+                                <li><i class="fa-solid fa-check text-slate-400"></i> شهرين مجاناً</li>
+                                <li><i class="fa-solid fa-check text-slate-400"></i> استشارة تطوير مسار سنوياً</li>
+                            </ul>
+                            <button onclick="openPricingModal()" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl" data-i18n="subs.subscribe">اشترك الآن</button>
+                        </div>
+                    </div>
+
+                    <div class="panel rounded-2xl p-4 sm:p-5 space-y-1 mt-2">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-people-group"></i> <span data-i18n="subs.teamTitle">باقات الفرق والجامعات</span></h3>
+                        <p class="text-xs text-slate-400" data-i18n="subs.teamDesc">لكليات وجامعات ومراكز توظيف عايزة تدرّب مجموعة طلاب/خريجين مع بعض بسعر أوفر للفرد.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="panel-2 rounded-xl p-4 space-y-2 lift-hover">
+                            <h4 class="text-xs font-bold text-slate-200" data-i18n="subs.teamSmallName">فريق صغير</h4>
+                            <p class="text-[10px] text-slate-500 mb-1" data-i18n="subs.teamSmallRange">حتى 10 أفراد</p>
+                            <p class="text-lg font-bold text-white">149 <span class="text-xs">ج.م</span> <span class="text-[10px] text-slate-500" data-i18n="subs.perSeat">/ للفرد شهرياً</span></p>
+                            <ul class="text-[10.5px] text-slate-400 space-y-1.5">
+                                <li><i class="fa-solid fa-check text-slate-400"></i> كل مزايا الباقة الاحترافية</li>
+                                <li><i class="fa-solid fa-check text-slate-400"></i> لوحة متابعة تقدّم الفريق</li>
+                            </ul>
+                            <button onclick="openPricingModal()" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl" data-i18n="subs.subscribe">اشترك الآن</button>
+                        </div>
+                        <div class="rounded-xl p-4 space-y-2 border-2 border-violet-400 relative bg-[#20252c] lift-hover">
+                            <span class="absolute top-0 left-0 bg-violet-400 text-slate-950 text-[9px] font-bold px-2 py-0.5 rounded-br-lg rounded-tl-xl" data-i18n="subs.recommended">موصى بها للجامعات</span>
+                            <h4 class="text-xs font-bold text-slate-100" data-i18n="subs.teamMedName">دفعة / كلية</h4>
+                            <p class="text-[10px] text-slate-400 mb-1" data-i18n="subs.teamMedRange">11 إلى 100 فرد</p>
+                            <p class="text-lg font-bold text-white">99 <span class="text-xs">ج.م</span> <span class="text-[10px] text-slate-500" data-i18n="subs.perSeat">/ للفرد شهرياً</span></p>
+                            <ul class="text-[10.5px] text-slate-300 space-y-1.5">
+                                <li><i class="fa-solid fa-check text-slate-300"></i> كل مزايا الاحترافية لكل الطلاب</li>
+                                <li><i class="fa-solid fa-check text-slate-300"></i> تقرير جماعي لمشرف الدفعة</li>
+                                <li><i class="fa-solid fa-check text-slate-300"></i> جلسة تدريب تعريفية مجانية</li>
+                            </ul>
+                            <button onclick="openPricingModal()" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl" data-i18n="subs.subscribe">اشترك الآن</button>
+                        </div>
+                        <div class="panel-2 rounded-xl p-4 space-y-2 lift-hover">
+                            <h4 class="text-xs font-bold text-slate-200" data-i18n="subs.uniName">جامعة / مؤسسة كبيرة</h4>
+                            <p class="text-[10px] text-slate-500 mb-1" data-i18n="subs.uniRange">أكتر من 100 فرد</p>
+                            <p class="text-lg font-bold text-white" data-i18n="subs.customPrice">سعر خاص حسب العدد</p>
+                            <ul class="text-[10.5px] text-slate-400 space-y-1.5">
+                                <li><i class="fa-solid fa-check text-slate-400"></i> كل المزايا + تخصيص كامل</li>
+                                <li><i class="fa-solid fa-check text-slate-400"></i> مدير حساب مخصص للجامعة</li>
+                            </ul>
+                            <button onclick="switchViewByName('support')" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl" data-i18n="subs.contactUs">تواصل معنا</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= DONATIONS ================= -->
+            <section id="view-donations" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div class="text-center space-y-1">
+                        <div class="w-12 h-12 rounded-full acc-donations flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        <h3 class="text-sm font-bold text-slate-100" data-i18n="don.title">ادعم استمرار المنصة</h3>
+                        <p class="text-xs text-slate-400 max-w-md mx-auto" data-i18n="don.desc">لو حابب تدعم تطوير يُسْر Pro واستمراريتها، تقدر تتبرع بأي مبلغ عن طريق الأرقام دي.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto w-full">
+                        <div class="panel-2 rounded-xl p-4 space-y-2">
+                            <p class="text-[11px] text-slate-400 flex items-center gap-2"><i class="fa-solid fa-wallet"></i> <span data-i18n="don.wallet">محفظة إلكترونية</span></p>
+                            <div class="flex items-center justify-between panel rounded-lg px-3 py-2">
+                                <span class="font-bold text-slate-100 text-sm" dir="ltr">01279383905</span>
+                                <button onclick="copyPlainText('01279383905', this)" class="chip"><i class="fa-solid fa-copy"></i></button>
+                            </div>
+                            <div class="flex items-center justify-between panel rounded-lg px-3 py-2">
+                                <span class="font-bold text-slate-100 text-sm" dir="ltr">01279383843</span>
+                                <button onclick="copyPlainText('01279383843', this)" class="chip"><i class="fa-solid fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="panel-2 rounded-xl p-4 space-y-2">
+                            <p class="text-[11px] text-slate-400 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer"></i> InstaPay</p>
+                            <div class="flex items-center justify-between panel rounded-lg px-3 py-2">
+                                <span class="font-bold text-slate-100 text-sm" dir="ltr">01279383905</span>
+                                <button onclick="copyPlainText('01279383905', this)" class="chip"><i class="fa-solid fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10.5px] text-slate-500 text-center" data-i18n="don.thanks">شكراً جزيلاً لكل حد بيدعم — دعمك بيساعدنا نضيف مميزات جديدة ونحافظ على الخدمة مجانية لأكبر عدد ممكن.</p>
+                </div>
+            </section>
+
+            <!-- ================= SUPPORT ================= -->
+            <section id="view-support" class="view">
+                <div class="panel rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div class="text-center space-y-1">
+                        <div class="w-12 h-12 rounded-full acc-support flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-headset"></i></div>
+                        <h3 class="text-sm font-bold text-slate-100" data-i18n="sup.title">الدعم والتواصل</h3>
+                        <p class="text-xs text-slate-400" data-i18n="sup.desc">عندك سؤال أو مشكلة أو اقتراح؟ تواصل معانا مباشرة على أي من القنوات دي.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto w-full">
+                        <a href="tel:01279383905" class="panel-2 rounded-xl p-4 text-center space-y-2 lift-hover block">
+                            <div class="w-10 h-10 rounded-full bg-slate-600/30 text-slate-200 flex items-center justify-center mx-auto"><i class="fa-solid fa-phone"></i></div>
+                            <p class="text-xs font-bold text-slate-100" data-i18n="sup.phone">اتصال مباشر</p>
+                            <p class="text-[11px] text-slate-400" dir="ltr">01279383905</p>
+                        </a>
+                        <a href="https://wa.me/201279383905" target="_blank" class="panel-2 rounded-xl p-4 text-center space-y-2 lift-hover block">
+                            <div class="w-10 h-10 rounded-full bg-emerald-600/25 text-emerald-300 flex items-center justify-center mx-auto"><i class="fa-brands fa-whatsapp"></i></div>
+                            <p class="text-xs font-bold text-slate-100">WhatsApp</p>
+                            <p class="text-[11px] text-slate-400" dir="ltr">01279383905</p>
+                        </a>
+                        <a href="https://instagram.com/yvssen_yvsser1" target="_blank" class="panel-2 rounded-xl p-4 text-center space-y-2 lift-hover block">
+                            <div class="w-10 h-10 rounded-full bg-pink-600/25 text-pink-300 flex items-center justify-center mx-auto"><i class="fa-brands fa-instagram"></i></div>
+                            <p class="text-xs font-bold text-slate-100">Instagram</p>
+                            <p class="text-[11px] text-slate-400" dir="ltr">yvssen_yvsser1</p>
+                        </a>
+                    </div>
+                    <div class="panel-2 rounded-xl p-3.5 text-[11px] text-slate-400 text-center" data-i18n="sup.hours">بنرد عادةً خلال ساعات قليلة. للاستفسارات العاجلة، الأسرع هو الواتساب.</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- Modal: Pricing (sized like a phone screen, with X to go back) -->
+<div id="pricing-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-0 sm:p-4 z-50">
+    <div class="panel modal-pop w-full max-w-[380px] h-full sm:h-auto sm:max-h-[88vh] rounded-none sm:rounded-2xl p-5 space-y-4 overflow-y-auto relative">
+        <button onclick="closePricingModal()" aria-label="رجوع" class="absolute top-3 left-3 w-8 h-8 rounded-full panel-2 text-slate-400 hover:text-white flex items-center justify-center z-10">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="text-center space-y-1 pt-1">
+            <div class="w-12 h-12 rounded-full bg-slate-700/40 text-slate-300 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-gem"></i></div>
+            <h3 class="text-lg font-bold text-slate-100">اختر باقتك</h3>
+            <p class="text-xs text-slate-400">كل أدوات المنصة في مكان واحد - مقابلات، سيرة ذاتية، بورتفوليو، تدقيق أكاديمي، تفريغ صوتي، وأكتر.</p>
+        </div>
+
+        <div class="space-y-3 text-right">
+            <div class="panel-2 rounded-xl p-3.5 space-y-2">
+                <h4 class="text-xs font-bold text-slate-200">الأساسية</h4>
+                <p class="text-lg font-bold text-white">99 ج.م <span class="text-[10px] text-slate-500">/ شهرياً</span></p>
+                <ul class="text-[10.5px] text-slate-400 space-y-1.5">
+                    <li><i class="fa-solid fa-check text-slate-400"></i> 15 مقابلة تدريبية شهرياً</li>
+                    <li><i class="fa-solid fa-check text-slate-400"></i> بناء سيرة ذاتية غير محدود</li>
+                    <li><i class="fa-solid fa-check text-slate-400"></i> أسئلة شائعة لكل وظيفة</li>
+                    <li><i class="fa-solid fa-check text-slate-400"></i> تلخيص مستندات غير محدود</li>
+                </ul>
+                <button onclick="confirmSubscription('الأساسية', 99, 'شهرياً')" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl mt-1">اشترك في الأساسية</button>
+            </div>
+            <div class="rounded-xl p-3.5 space-y-2 border-2 border-slate-400 relative bg-[#20252c]">
+                <span class="absolute top-0 left-0 bg-slate-300 text-slate-950 text-[9px] font-bold px-2 py-0.5 rounded-br-lg rounded-tl-xl">الأكثر طلباً</span>
+                <h4 class="text-xs font-bold text-slate-100">الاحترافية</h4>
+                <p class="text-lg font-bold text-white">199 ج.م <span class="text-[10px] text-slate-500">/ شهرياً</span></p>
+                <ul class="text-[10.5px] text-slate-300 space-y-1.5">
+                    <li><i class="fa-solid fa-check text-slate-300"></i> مقابلات صوتية غير محدودة</li>
+                    <li><i class="fa-solid fa-check text-slate-300"></i> تقارير أداء تفصيلية بعد كل مقابلة</li>
+                    <li><i class="fa-solid fa-check text-slate-300"></i> خطط تطور مهني مخصصة</li>
+                    <li><i class="fa-solid fa-check text-slate-300"></i> بورتفوليو + تدقيق أكاديمي</li>
+                    <li><i class="fa-solid fa-check text-slate-300"></i> تفريغ صوتي بكل اللغات المتاحة</li>
+                    <li><i class="fa-solid fa-check text-slate-300"></i> أولوية دعم فني</li>
+                </ul>
+                <button onclick="confirmSubscription('الاحترافية', 199, 'شهرياً')" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl mt-1">اشترك في الاحترافية</button>
+            </div>
+            <div class="panel-2 rounded-xl p-3.5 space-y-2">
+                <h4 class="text-xs font-bold text-slate-200">السنوية</h4>
+                <p class="text-lg font-bold text-white">1499 ج.م <span class="text-[10px] text-slate-500">/ سنوياً</span></p>
+                <ul class="text-[10.5px] text-slate-400 space-y-1.5">
+                    <li><i class="fa-solid fa-check text-slate-400"></i> كل مزايا الاحترافية</li>
+                    <li><i class="fa-solid fa-check text-slate-400"></i> شهرين مجاناً (توفير عن الشهري)</li>
+                    <li><i class="fa-solid fa-check text-slate-400"></i> استشارة تطوير مسار مهني مرة سنوياً</li>
+                </ul>
+                <button onclick="confirmSubscription('السنوية', 1499, 'سنوياً')" class="w-full py-2 btn-accent acc-subs font-bold text-xs rounded-xl mt-1">اشترك في السنوية</button>
+            </div>
+        </div>
+
+        <button onclick="closePricingModal()" class="w-full text-xs text-slate-500 hover:text-white py-1">إغلاق</button>
+    </div>
+</div>
+
+<!-- Modal: CV link for interview -->
+<div id="cv-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
+    <div class="panel modal-pop max-w-md w-full rounded-2xl p-5 space-y-3">
+        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-id-card"></i> ربط بيانات الـ CV بالمقابلة</h3>
+        <p class="text-xs text-slate-400">الصق نص خبراتك عشان الأسئلة تتخصص على أساسها:</p>
+        <textarea id="cv-text-input" rows="4" placeholder="أدخل نص خبراتك هنا..." class="w-full input-field rounded-xl p-2.5 text-xs"></textarea>
+        <div class="flex gap-2">
+            <button onclick="saveCvData()" class="flex-1 py-2 btn-primary font-bold rounded-xl text-xs">حفظ</button>
+            <button onclick="closeCvModal()" class="py-2 px-3 btn-ghost rounded-xl text-xs">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Performance Report -->
+<div id="report-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
+    <div class="panel modal-pop max-w-xl w-full max-h-[85vh] rounded-2xl p-5 flex flex-col space-y-3">
+        <div class="flex justify-between items-center border-b border-[var(--border)] pb-2 shrink-0">
+            <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2"><i class="fa-solid fa-chart-line"></i> تقرير الأداء التفصيلي</h3>
+            <button onclick="closeReportModal()" class="text-slate-500 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="report-body" class="text-xs sm:text-sm text-slate-200 leading-relaxed overflow-y-auto pr-1"></div>
+    </div>
+</div>
+
+<script>
+    // ✅ المفتاحين اتشالوا خالص من هنا. كل الطلبات بتعدّي دلوقتي على Cloud Functions
+    // آمنة، والمفتاحين مخزنين هناك بس عن طريق Firebase Secret Manager.
+    // ⚠️ لو غيّرتي اسم مشروع Firebase أو الـ region، لازم تظبطي الرابط ده تبعًا لذلك.
+    const CLOUD_FUNCTIONS_BASE = "https://yusr-worker.yassen-yasser29311.workers.dev";
+
+    let isVoiceEnabled = true;
+    let interviewRole = "", selectedNationality = "", chatHistory = [], cvContent = "";
+    let recognition = null, isRecording = false, recordStartTime = 0;
+    let speakingStats = [];
+    let currentAppLang = 'ar-EG';
+
+    const viewTitles = {
+        interview: "مقابلة تدريبية صوتية", faq: "أسئلة شائعة + إجابات نموذجية", career: "خطة التطور المهني",
+        cv: "بناء السيرة الذاتية", portfolio: "بورتفوليو شخصي", writing: "تدقيق وتنسيق أكاديمي",
+        summarizer: "تلخيص المستندات", transcribe: "تفريغ الصوت إلى نص", montage: "مونتاج فيديو بالذكاء الاصطناعي",
+        profile: "الملف الشخصي", subscriptions: "الاشتراكات", donations: "التبرعات", support: "الدعم والتواصل"
+    };
+    const viewTitlesEn = {
+        interview: "Voice Mock Interview", faq: "FAQ + Model Answers", career: "Career Growth Plan",
+        cv: "CV Builder", portfolio: "Personal Portfolio", writing: "Academic Writing Review",
+        summarizer: "Document Summarizer", transcribe: "Speech to Text", montage: "AI Video Montage",
+        profile: "Profile", subscriptions: "Subscriptions", donations: "Donations", support: "Support"
+    };
+
+    function switchView(view, el) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-' + view).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if (el) el.classList.add('active');
+        document.getElementById('view-title').innerText = (currentUiLang === 'en' ? viewTitlesEn[view] : viewTitles[view]) || '';
+        if (view === 'profile') refreshProfileView();
+        if (window.innerWidth < 1024) toggleSidebar(true);
+    }
+    function switchViewByName(view) {
+        const navEl = document.querySelector(`.nav-item[data-view="${view}"]`);
+        switchView(view, navEl);
+    }
+
+    function toggleSidebar(forceClose) {
+        const sb = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (window.innerWidth < 1024) {
+            const willClose = forceClose === true || !sb.classList.contains('collapsed');
+            if (willClose) { sb.classList.add('collapsed'); overlay.classList.add('hidden'); }
+            else { sb.classList.remove('collapsed'); overlay.classList.remove('hidden'); }
+        } else {
+            sb.classList.toggle('collapsed');
+        }
+    }
+    // Mobile: sidebar starts hidden off-canvas
+    if (window.innerWidth < 1024) document.getElementById('sidebar').classList.add('collapsed');
+
+    // ============ i18n ============
+    let currentUiLang = 'ar';
+    const I18N = {
+        ar: {
+            "nav.section.interviews":"المقابلات والتوظيف","nav.interview":"مقابلة تدريبية صوتية","nav.faq":"أسئلة شائعة + إجابات نموذجية","nav.career":"خطة التطور المهني",
+            "nav.section.documents":"المستندات","nav.cv":"بناء السيرة الذاتية","nav.portfolio":"بورتفوليو شخصي","nav.writing":"تدقيق وتنسيق أكاديمي","nav.summarizer":"تلخيص المستندات",
+            "nav.section.audio":"الصوت والفيديو","nav.transcribe":"تفريغ الصوت إلى نص","nav.montage":"مونتاج فيديو بالذكاء الاصطناعي",
+            "nav.section.account":"الحساب والدعم","nav.profile":"الملف الشخصي","nav.subscriptions":"الاشتراكات","nav.donations":"التبرعات","nav.support":"الدعم والتواصل",
+            "account.guest":"زائر (الجهاز ده)","account.signinHint":"سجّل دخول بجوجل لحفظ صورتك ونقاطك",
+            "trial.left":"المحاولات المتبقية","trial.upgrade":"ترقية للباقة الكاملة",
+            "copy":"نسخ","download":"تنزيل",
+            "interview.desc":"تدرّب على مقابلة شفهية حقيقية بالصوت مع تقييم أداء تفصيلي في النهاية.","interview.linkCv":"ربط الـ CV",
+            "interview.roleLabel":"الوظيفة المستهدفة","interview.rolePh":"مثلاً: مبيعات عقارات، خدمة عملاء، برمجة...",
+            "interview.personaLabel":"شخصية المحاور","interview.start":"ابدأ الجلسة","interview.speaking":"المحاور يتحدث الآن...",
+            "interview.inputPh":"تحدث بالميكروفون أو اكتب هنا...","interview.reportHint":"التقييم يحلل ردودك النصية + سرعة كلامك وعدد كلمات التردد لو تحدثت بالميكروفون.",
+            "faq.desc":"اكتب الوظيفة والمجال، وهنجهزلك بنك أسئلة شائعة حقيقي مع إجابات نموذجية مقنعة تزود فرصتك في القبول.","faq.rolePh":"مثلاً: مسؤول مبيعات عقارات","faq.run":"جهّز الأسئلة والإجابات",
+            "career.desc":"قولنا وضعك الحالي والهدف اللي عايز توصله، وهنبنيلك خطة تطور عملية بخطوات واقعية.","career.currentLabel":"وضعك الحالي","career.currentPh":"مثلاً: محاسب سنة أولى خبرة",
+            "career.targetLabel":"هدفك","career.targetPh":"مثلاً: عايز أتحول لمجال تحليل البيانات","career.contextPh":"اي تفاصيل إضافية تفيد - اختياري","career.run":"ابنِ خطتي",
+            "cv.notice":"الأداة دي بتبني محتوى ونص السيرة الذاتية بصياغة احترافية جاهزة للنسخ، مش تصميم PDF جاهز بصورة شخصية زي لينكد إن.","cv.photoHint":"صورة شخصية اختيارية (بتتحفظ في المتصفح بتاعك بس).",
+            "cv.namePh":"الاسم الكامل","cv.titlePh":"المسمى الوظيفي المستهدف","cv.expPh":"خبراتك العملية","cv.eduPh":"المؤهلات الدراسية والشهادات","cv.skillsPh":"المهارات (افصل بينها بفاصلة)","cv.run":"صِغ سيرتي الذاتية",
+            "pf.notice":"هيسألك الذكاء الاصطناعي كام سؤال بسيط عن مجالك ومشاريعك عشان يجهّزلك محتوى بورتفوليو احترافي مخصص.","pf.fieldPh":"مجالك (مصمم، مبرمج، مسوّق...)","pf.start":"ابدأ - خلي الذكاء الاصطناعي يسألني",
+            "pf.inputPh":"اكتب ردّك هنا...","pf.generate":"كفاية أسئلة - جهّز البورتفوليو الآن",
+            "writing.notice":"مراجعة لغوية وتدقيق واقتراح تنسيق أكاديمي كتوصيات نصية تطبّقها بنفسك في Word.","writing.topicPh":"موضوع البحث (اختياري)","writing.inputPh":"الصق نص البحث أو المقال هنا...","writing.run":"راجع النص",
+            "sum.desc":"لخّص أي تقرير أو مقال أو محاضرة في ثواني.","sum.inputPh":"الصق النص هنا...","sum.run":"لخّص الآن",
+            "tr.notice":"تقدر ترفع ملف صوت جاهز فيتفرّغ تلقائياً بالذكاء الاصطناعي، أو تسجل مباشرة بالمايك، أو تلصق نص جاهز.","tr.uploadBtn":"ارفع ملف صوتي وفرّغه تلقائياً","tr.uploadHint":"مفيش ملف مرفوع لسه",
+            "tr.sourceLangLabel":"لغة الكلام المصدر","tr.targetLangLabel":"ترجم النص النهائي إلى (اختياري)","tr.micHint":"اضغط للتسجيل، أو ارفع ملف فوق، أو الصق نص جاهز تحت.","tr.rawPh":"النص الخام هيظهر هنا...","tr.run":"نظّف وحسّن التنسيق",
+            "mo.notice":"ارفع فيديوك واكتب تعليماتك بالظبط. الذكاء الاصطناعي هيجهّزلك خطة مونتاج احترافية مفصّلة.","mo.uploadLabel":"ارفع الفيديو","mo.typeLabel":"نوع المحتوى",
+            "mo.instructionsPh":"اكتب تعليماتك بالظبط...","mo.run":"جهّز خطة المونتاج الاحترافية","mo.trimTitle":"أداة قص سريع (تجريبية داخل المتصفح)","mo.trimStart":"بداية القص (ثانية)","mo.trimEnd":"نهاية القص (ثانية)","mo.trimExport":"صدّر المقطع المقصوص",
+            "profile.points":"نقطة","profile.namePh":"اسمك الكامل","profile.titlePh":"المسمى الوظيفي","profile.googleBtn":"تسجيل الدخول بحساب جوجل",
+            "profile.googleHint":"تسجيل الدخول بيحفظ اسمك وصورتك ونقاطك على نفس الجهاز — المحاولات المجانية بتُحسب على الجهاز مش على الحساب.","profile.save":"حفظ البيانات",
+            "profile.connected":"متصل بجوجل","profile.logoutBtn":"تسجيل الخروج",
+            "profile.statUsage":"مرات استخدام الأدوات","profile.statDevice":"معرّف الجهاز","profile.statPlan":"باقتك الحالية","profile.planFree":"مجاني",
+            "subs.individualTitle":"باقات الأفراد","subs.individualDesc":"لكل حد بيحضّر لمقابلة أو بيبني مسيرته المهنية بنفسه.","subs.basicName":"الأساسية","subs.perMonth":"/ شهرياً","subs.proName":"الاحترافية","subs.popular":"الأكثر طلباً",
+            "subs.yearlyName":"السنوية","subs.perYear":"/ سنوياً","subs.subscribe":"اشترك الآن","subs.teamTitle":"باقات الفرق والجامعات","subs.teamDesc":"لكليات وجامعات ومراكز توظيف عايزة تدرّب مجموعة مع بعض بسعر أوفر.",
+            "subs.teamSmallName":"فريق صغير","subs.teamSmallRange":"حتى 10 أفراد","subs.perSeat":"/ للفرد شهرياً","subs.recommended":"موصى بها للجامعات","subs.teamMedName":"دفعة / كلية","subs.teamMedRange":"11 إلى 100 فرد",
+            "subs.uniName":"جامعة / مؤسسة كبيرة","subs.uniRange":"أكتر من 100 فرد","subs.customPrice":"سعر خاص حسب العدد","subs.contactUs":"تواصل معنا",
+            "don.title":"ادعم استمرار المنصة","don.desc":"لو حابب تدعم تطوير يُسْر Pro واستمراريتها، تقدر تتبرع بأي مبلغ عن طريق الأرقام دي.","don.wallet":"محفظة إلكترونية","don.thanks":"شكراً جزيلاً لكل حد بيدعم.",
+            "sup.title":"الدعم والتواصل","sup.desc":"عندك سؤال أو مشكلة أو اقتراح؟ تواصل معانا مباشرة.","sup.phone":"اتصال مباشر","sup.hours":"بنرد عادةً خلال ساعات قليلة. للاستفسارات العاجلة، الأسرع هو الواتساب."
+        },
+        en: {
+            "nav.section.interviews":"Interviews & Hiring","nav.interview":"Voice Mock Interview","nav.faq":"FAQ + Model Answers","nav.career":"Career Growth Plan",
+            "nav.section.documents":"Documents","nav.cv":"CV Builder","nav.portfolio":"Personal Portfolio","nav.writing":"Academic Writing Review","nav.summarizer":"Document Summarizer",
+            "nav.section.audio":"Audio & Video","nav.transcribe":"Speech to Text","nav.montage":"AI Video Montage",
+            "nav.section.account":"Account & Support","nav.profile":"Profile","nav.subscriptions":"Subscriptions","nav.donations":"Donations","nav.support":"Support",
+            "account.guest":"Guest (this device)","account.signinHint":"Sign in with Google to save your photo & points",
+            "trial.left":"Trials remaining","trial.upgrade":"Upgrade to full plan",
+            "copy":"Copy","download":"Download",
+            "interview.desc":"Practice a real spoken interview with detailed performance feedback at the end.","interview.linkCv":"Link CV",
+            "interview.roleLabel":"Target role","interview.rolePh":"e.g. Sales, Customer Service, Programming...",
+            "interview.personaLabel":"Interviewer persona","interview.start":"Start Session","interview.speaking":"Interviewer is speaking...",
+            "interview.inputPh":"Speak into the mic or type here...","interview.reportHint":"The report analyzes your text answers plus speaking speed and filler words if you used the mic.",
+            "faq.desc":"Write the role and field, we'll prepare a real bank of common questions with convincing model answers.","faq.rolePh":"e.g. Real Estate Sales Rep","faq.run":"Generate Questions & Answers",
+            "career.desc":"Tell us your current situation and your goal, and we'll build a practical growth plan.","career.currentLabel":"Current situation","career.currentPh":"e.g. 1st year accountant",
+            "career.targetLabel":"Your goal","career.targetPh":"e.g. Switch to data analytics","career.contextPh":"Any extra details - optional","career.run":"Build My Plan",
+            "cv.notice":"This tool builds professional CV content ready to copy, not a designed PDF like LinkedIn.","cv.photoHint":"Optional photo (stored in your browser only).",
+            "cv.namePh":"Full name","cv.titlePh":"Target job title","cv.expPh":"Your work experience","cv.eduPh":"Education & certificates","cv.skillsPh":"Skills (comma separated)","cv.run":"Write My CV",
+            "pf.notice":"The AI will ask you a few simple questions about your field and projects to prepare custom portfolio content.","pf.fieldPh":"Your field (designer, developer, marketer...)","pf.start":"Start - let the AI ask me",
+            "pf.inputPh":"Type your answer here...","pf.generate":"Enough questions - generate the portfolio now",
+            "writing.notice":"Linguistic review and academic formatting suggestions as text recommendations you apply yourself in Word.","writing.topicPh":"Research topic (optional)","writing.inputPh":"Paste your research or article text here...","writing.run":"Review Text",
+            "sum.desc":"Summarize any report, article, or lecture in seconds.","sum.inputPh":"Paste text here...","sum.run":"Summarize Now",
+            "tr.notice":"Upload an audio file to auto-transcribe with AI, record with the mic, or paste ready text.","tr.uploadBtn":"Upload audio file & auto-transcribe","tr.uploadHint":"No file uploaded yet",
+            "tr.sourceLangLabel":"Source speech language","tr.targetLangLabel":"Translate final text to (optional)","tr.micHint":"Press to record, upload a file above, or paste text below.","tr.rawPh":"Raw text will appear here...","tr.run":"Clean Up & Format",
+            "mo.notice":"Upload your video and write your exact instructions. The AI will prepare a detailed professional edit plan.","mo.uploadLabel":"Upload video","mo.typeLabel":"Content type",
+            "mo.instructionsPh":"Write your exact instructions...","mo.run":"Generate Professional Edit Plan","mo.trimTitle":"Quick trim tool (in-browser, experimental)","mo.trimStart":"Trim start (sec)","mo.trimEnd":"Trim end (sec)","mo.trimExport":"Export trimmed clip",
+            "profile.points":"pts","profile.namePh":"Your full name","profile.titlePh":"Job title","profile.googleBtn":"Sign in with Google",
+            "profile.googleHint":"Signing in saves your name, photo and points on this device — free trials are counted per device, not per account.","profile.save":"Save Info",
+            "profile.connected":"Connected with Google","profile.logoutBtn":"Log out",
+            "profile.statUsage":"Tool uses","profile.statDevice":"Device ID","profile.statPlan":"Current plan","profile.planFree":"Free",
+            "subs.individualTitle":"Individual Plans","subs.individualDesc":"For anyone preparing for an interview or building their own career.","subs.basicName":"Basic","subs.perMonth":"/ month","subs.proName":"Professional","subs.popular":"Most Popular",
+            "subs.yearlyName":"Yearly","subs.perYear":"/ year","subs.subscribe":"Subscribe Now","subs.teamTitle":"Team & University Plans","subs.teamDesc":"For colleges, universities, and hiring centers training a group together at a better per-seat price.",
+            "subs.teamSmallName":"Small Team","subs.teamSmallRange":"Up to 10 people","subs.perSeat":"/ per seat / month","subs.recommended":"Recommended for universities","subs.teamMedName":"Batch / College","subs.teamMedRange":"11 to 100 people",
+            "subs.uniName":"University / Large Org","subs.uniRange":"Over 100 people","subs.customPrice":"Custom pricing","subs.contactUs":"Contact Us",
+            "don.title":"Support the Platform","don.desc":"If you'd like to support YUSR Pro's development, you can donate any amount via the numbers below.","don.wallet":"Mobile Wallet","don.thanks":"Thank you so much to everyone who supports us.",
+            "sup.title":"Support & Contact","sup.desc":"Have a question, issue, or suggestion? Reach us directly through any channel below.","sup.phone":"Direct Call","sup.hours":"We usually reply within a few hours. For urgent matters, WhatsApp is fastest."
+        }
+    };
+    function applyI18n() {
+        const dict = I18N[currentUiLang] || I18N.ar;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) el.textContent = dict[key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (dict[key]) el.placeholder = dict[key];
+        });
+        const activeNav = document.querySelector('.nav-item.active');
+        if (activeNav) {
+            document.getElementById('view-title').innerText = (currentUiLang === 'en' ? viewTitlesEn : viewTitles)[activeNav.dataset.view] || '';
+        }
+    }
+    function setAppLanguage(lang) {
+        currentAppLang = lang;
+        if (recognition) recognition.lang = lang;
+        currentUiLang = lang.startsWith('ar') ? 'ar' : (lang.startsWith('en') ? 'en' : (I18N[lang.slice(0,2)] ? lang.slice(0,2) : 'ar'));
+        document.documentElement.lang = currentUiLang;
+        document.documentElement.dir = (currentUiLang === 'en') ? 'ltr' : 'rtl';
+        applyI18n();
+    }
+
+    function getDeviceId() {
+        let id = localStorage.getItem('yusr_device_fingerprint');
+        if (!id) { id = 'DEV-' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36); localStorage.setItem('yusr_device_fingerprint', id); }
+        return id;
+    }
+    function checkDeviceTrial() {
+        const id = getDeviceId();
+        let usage = JSON.parse(localStorage.getItem('yusr_usage_' + id) || '{"count":0}');
+        const maxTrials = 9999; // TODO: رجّعها لرقم واقعي (مثلاً 2) قبل النشر الفعلي
+        const remaining = maxTrials - usage.count;
+        document.getElementById('trial-left').innerText = Math.max(0, remaining);
+        if (usage.count >= maxTrials) { openPricingModal(); return false; }
+        return true;
+    }
+    function incrementDeviceUsage() {
+        const id = getDeviceId();
+        let usage = JSON.parse(localStorage.getItem('yusr_usage_' + id) || '{"count":0}');
+        usage.count += 1;
+        localStorage.setItem('yusr_usage_' + id, JSON.stringify(usage));
+        checkDeviceTrial();
+        addPoints(10);
+    }
+
+    // ============ Firebase (secure cloud backend) ============
+    // البيانات بقت متخزنة على حساب المستخدم الحقيقي في Realtime Database، مش بس على الجهاز.
+    // قواعد الأمان في Firebase بتمنع أي حد إنه يقرا أو يكتب بيانات حساب مش بتاعه.
+    const firebaseConfig = {
+        apiKey: "AIzaSyC901aj4zCeoa623KQw-ZfnRaYNPDuVlOk",
+        authDomain: "yusr-d054e.firebaseapp.com",
+        // ⚠️ لازم تحط رابط الـ Realtime Database بتاعك هنا (من Firebase Console > Realtime Database)
+        // شكله عادةً: https://yusr-d054e-default-rtdb.firebaseio.com أو https://yusr-d054e-default-rtdb.<region>.firebasedatabase.app
+        databaseURL: "https://yusr-d054e-default-rtdb.firebaseio.com",
+        projectId: "yusr-d054e",
+        storageBucket: "yusr-d054e.firebasestorage.app",
+        messagingSenderId: "1088995951323",
+        appId: "1:1088995951323:web:a03bad519c8a63c58f02fe"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const db = firebase.database();
+    function userDocRef(uid) { return db.ref('users/' + uid); }
+    function syncProfileToCloud(p) {
+        const user = fbAuth.currentUser;
+        if (!user) return;
+        userDocRef(user.uid).update({
+            name: p.name || '', title: p.title || '', photo: p.photo || '',
+            points: p.points || 0, plan: p.plan || '', google: p.google || null,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        }).catch(e => console.warn('تعذر حفظ البيانات على الخادم', e));
+    }
+    function syncPurchasesToCloud(purchases) {
+        const user = fbAuth.currentUser;
+        if (!user) return;
+        userDocRef(user.uid).update({ purchases }).catch(e => console.warn('تعذر حفظ الاشتراكات على الخادم', e));
+    }
+    function loadProfileFromCloud(uid) {
+        userDocRef(uid).once('value').then(snap => {
+            if (snap.exists()) {
+                const cloud = snap.val();
+                const p = getProfile();
+                if (cloud.name) p.name = cloud.name;
+                if (cloud.title) p.title = cloud.title;
+                if (cloud.photo) p.photo = cloud.photo;
+                if (typeof cloud.points === 'number') p.points = cloud.points;
+                if (cloud.plan) p.plan = cloud.plan;
+                if (cloud.google) p.google = cloud.google;
+                saveProfile(p);
+                if (Array.isArray(cloud.purchases)) savePurchases(cloud.purchases);
+            } else {
+                syncProfileToCloud(getProfile());
+                syncPurchasesToCloud(getPurchases());
+            }
+            refreshProfileView();
+        }).catch(e => console.warn('تعذر تحميل البيانات من الخادم', e));
+    }
+    fbAuth.onAuthStateChanged(user => { if (user) loadProfileFromCloud(user.uid); });
+
+    // ============ Points & Profile (device-wide, optional Google sign-in) ============
+    function getProfile() {
+        return JSON.parse(localStorage.getItem('yusr_profile') || '{"name":"","title":"","photo":"","points":0,"google":null}');
+    }
+    function saveProfile(p) { localStorage.setItem('yusr_profile', JSON.stringify(p)); }
+    // ============ Subscriptions & purchase history (per-device, local demo record) ============
+    function getPurchases() { return JSON.parse(localStorage.getItem('yusr_purchases') || '[]'); }
+    function savePurchases(list) { localStorage.setItem('yusr_purchases', JSON.stringify(list)); }
+    function confirmSubscription(name, price, period) {
+        const sure = confirm(`تأكيد الاشتراك في باقة "${name}" بسعر ${price} ج.م / ${period}؟\n(ملحوظة: ده تسجيل تجريبي على جهازك، وهيتحول فعلياً لبوابة الدفع فودافون كاش / فيزا لاحقاً)`);
+        if (!sure) return;
+        const p = getProfile();
+        p.plan = name;
+        saveProfile(p);
+        syncProfileToCloud(p);
+        const purchases = getPurchases();
+        purchases.unshift({ id: 'PUR-' + Date.now(), name, price, period, date: new Date().toISOString() });
+        savePurchases(purchases);
+        syncPurchasesToCloud(purchases);
+        closePricingModal();
+        alert(`تم تفعيل باقة "${name}" على حسابك (تجريبياً). تقدر تراجع كل اشتراكاتك وإجمالي حسابك من صفحة الملف الشخصي.`);
+        refreshProfileView();
+    }
+    function addPoints(n) {
+        const p = getProfile(); p.points = (p.points || 0) + n; saveProfile(p);
+        syncProfileToCloud(p);
+        const el = document.getElementById('profile-points-count'); if (el) el.innerText = p.points;
+    }
+    function refreshProfileView() {
+        const p = getProfile();
+        document.getElementById('profile-name').value = p.name || '';
+        document.getElementById('profile-title').value = p.title || '';
+        document.getElementById('profile-points-count').innerText = p.points || 0;
+        if (p.photo) {
+            document.getElementById('profile-photo-preview').src = p.photo;
+            document.getElementById('profile-photo-preview').classList.remove('hidden');
+            document.getElementById('profile-photo-icon').classList.add('hidden');
+        }
+        const id = getDeviceId();
+        const usage = JSON.parse(localStorage.getItem('yusr_usage_' + id) || '{"count":0}');
+        document.getElementById('profile-stat-usage').innerText = usage.count || 0;
+        document.getElementById('profile-stat-device').innerText = id.replace('DEV-', '').slice(0, 10) + '…';
+        const planName = p.plan || 'مجاني';
+        document.getElementById('profile-stat-plan').innerText = planName;
+        document.getElementById('profile-current-plan').innerText = planName;
+        updateAccountChip(p);
+        renderPurchasesOverview();
+        refreshGoogleSigninState(p);
+    }
+    function refreshGoogleSigninState(p) {
+        p = p || getProfile();
+        const signedOutArea = document.getElementById('google-signin-area');
+        const signedInArea = document.getElementById('google-signedin-area');
+        if (p.google) {
+            signedOutArea.classList.add('hidden');
+            signedInArea.classList.remove('hidden');
+            document.getElementById('signedin-name').textContent = p.google.name || p.name || '-';
+            document.getElementById('signedin-email').textContent = p.google.email || '';
+            const img = document.getElementById('signedin-avatar-img');
+            const icon = document.getElementById('signedin-avatar-icon');
+            if (p.google.picture) {
+                img.src = p.google.picture;
+                img.classList.remove('hidden');
+                icon.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                icon.classList.remove('hidden');
+            }
+        } else {
+            signedOutArea.classList.remove('hidden');
+            signedInArea.classList.add('hidden');
+        }
+    }
+    function logoutAccount() {
+        const sure = confirm(currentUiLang === 'en' ? 'Log out of your Google account on this device?' : 'تسجيل الخروج من حساب جوجل على الجهاز ده؟');
+        if (!sure) return;
+        const p = getProfile();
+        p.google = null;
+        saveProfile(p);
+        try {
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                window.google.accounts.id.disableAutoSelect();
+            }
+        } catch (e) {}
+        googleTokenClient = null;
+        fbAuth.signOut().catch(() => {});
+        refreshProfileView();
+        alert(currentUiLang === 'en' ? 'Logged out. You can sign in again anytime.' : 'تم تسجيل الخروج. تقدر تسجل دخول تاني في أي وقت.');
+    }
+    function renderPurchasesOverview() {
+        const purchases = getPurchases();
+        const listEl = document.getElementById('profile-purchases-list');
+        const total = purchases.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+        document.getElementById('profile-total-count').innerText = purchases.length;
+        document.getElementById('profile-total-spent').innerText = total.toLocaleString('ar-EG') + ' ج.م';
+        if (!purchases.length) {
+            listEl.innerHTML = `<div class="panel-2 rounded-xl p-4 text-center text-[11px] text-slate-500">لسه مفيش اشتراكات أو مشتريات مسجلة على حسابك. اضغط "اشترك في باقة" فوق عشان تبدأ.</div>`;
+            return;
+        }
+        listEl.innerHTML = purchases.map(item => {
+            const d = new Date(item.date);
+            const dateStr = isNaN(d) ? '' : d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+            return `<div class="panel-2 rounded-xl p-3 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg acc-subs flex items-center justify-center shrink-0"><i class="fa-solid fa-gem text-[11px]"></i></div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-slate-100 truncate">باقة ${item.name}</p>
+                        <p class="text-[10px] text-slate-500">${dateStr} · ${item.period || ''}</p>
+                    </div>
+                </div>
+                <p class="text-xs font-bold text-slate-200 shrink-0">${item.price} ج.م</p>
+            </div>`;
+        }).join('');
+    }
+    function updateAccountChip(p) {
+        p = p || getProfile();
+        document.getElementById('account-name').textContent = p.name || (I18N[currentUiLang]['account.guest']);
+        document.getElementById('account-sub').textContent = p.google ? p.google.email : (I18N[currentUiLang]['account.signinHint']);
+        const avatar = document.getElementById('account-avatar');
+        if (p.photo || (p.google && p.google.picture)) {
+            avatar.innerHTML = `<img src="${p.photo || p.google.picture}" class="w-full h-full object-cover">`;
+        }
+    }
+    function handleProfilePhotoUpload(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            const p = getProfile(); p.photo = reader.result; saveProfile(p);
+            syncProfileToCloud(p);
+            refreshProfileView();
+        };
+        reader.readAsDataURL(file);
+    }
+    function saveProfileInfo() {
+        const p = getProfile();
+        p.name = document.getElementById('profile-name').value.trim();
+        p.title = document.getElementById('profile-title').value.trim();
+        saveProfile(p);
+        syncProfileToCloud(p);
+        updateAccountChip(p);
+        alert(currentUiLang === 'en' ? 'Saved!' : 'تم الحفظ!');
+    }
+    // Google Sign-In (Google Identity Services). Requires a real Google Cloud OAuth Client ID
+    // to actually authenticate — replace GOOGLE_CLIENT_ID below with your own from
+    // https://console.cloud.google.com/apis/credentials . Trial counting stays device-based
+    // regardless of sign-in (see getDeviceId/checkDeviceTrial above), by design.
+    const GOOGLE_CLIENT_ID = "1088995951323-c6aeisqni683ishtav76e33vcbjdve7c.apps.googleusercontent.com";
+    let googleTokenClient = null;
+    function handleGoogleCredential(response) {
+        try {
+            const payload = JSON.parse(decodeURIComponent(escape(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));
+            const p = getProfile();
+            p.google = { email: payload.email, picture: payload.picture, name: payload.name };
+            if (!p.name) p.name = payload.name;
+            if (!p.photo) p.photo = payload.picture;
+            saveProfile(p);
+            refreshProfileView();
+            const cred = firebase.auth.GoogleAuthProvider.credential(response.credential);
+            fbAuth.signInWithCredential(cred)
+                .then(result => { syncProfileToCloud(getProfile()); loadProfileFromCloud(result.user.uid); })
+                .catch(e => console.warn('تعذر تسجيل الدخول على الخادم', e));
+        } catch (e) { console.warn('تعذر قراءة بيانات جوجل', e); }
+    }
+    function handleGoogleTokenResponse(tokenResponse) {
+        if (!tokenResponse || !tokenResponse.access_token) return;
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: 'Bearer ' + tokenResponse.access_token }
+        })
+        .then(res => res.json())
+        .then(info => {
+            const p = getProfile();
+            p.google = { email: info.email, picture: info.picture, name: info.name };
+            if (!p.name) p.name = info.name;
+            if (!p.photo) p.photo = info.picture;
+            saveProfile(p);
+            refreshProfileView();
+            const cred = firebase.auth.GoogleAuthProvider.credential(null, tokenResponse.access_token);
+            fbAuth.signInWithCredential(cred)
+                .then(result => { syncProfileToCloud(getProfile()); loadProfileFromCloud(result.user.uid); })
+                .catch(e => console.warn('تعذر تسجيل الدخول على الخادم', e));
+        })
+        .catch(e => console.warn('تعذر قراءة بيانات جوجل', e));
+    }
+    function initGoogleSignIn() {
+        if (GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) return false;
+        if (!(window.google && window.google.accounts)) return false;
+        try {
+            if (!googleTokenClient && window.google.accounts.oauth2) {
+                googleTokenClient = window.google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'openid email profile',
+                    callback: handleGoogleTokenResponse
+                });
+            }
+            window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
+            window.google.accounts.id.renderButton(document.getElementById('g_id_signin_container'), { theme: 'outline', size: 'medium' });
+        } catch (e) { console.warn('تعذر تهيئة تسجيل دخول جوجل', e); }
+        return !!googleTokenClient;
+    }
+    function mockGoogleSignIn() {
+        if (GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
+            alert(currentUiLang === 'en'
+                ? "Google Sign-In needs a real Google OAuth Client ID configured by the site owner in the code (GOOGLE_CLIENT_ID). Once set, this button will open the real Google sign-in popup."
+                : "تسجيل الدخول بجوجل الحقيقي محتاج Client ID من Google Cloud يتحط في الكود (GOOGLE_CLIENT_ID) من صاحب الموقع. لحد ما يتحط، الزرار ده هيفضل تجريبي.");
+            return;
+        }
+        if (googleTokenClient) {
+            googleTokenClient.requestAccessToken();
+            return;
+        }
+        if (initGoogleSignIn() && googleTokenClient) {
+            googleTokenClient.requestAccessToken();
+            return;
+        }
+        alert(currentUiLang === 'en'
+            ? "Google sign-in is still loading, please try again in a second."
+            : "تسجيل الدخول بجوجل لسه بيتحمّل، جرب تدوس تاني بعد لحظة.");
+    }
+    try { initGoogleSignIn(); } catch (e) {}
+    (function () {
+        const gsiScript = document.getElementById('google-gsi-script');
+        if (gsiScript) gsiScript.addEventListener('load', function () { try { initGoogleSignIn(); } catch (e) {} });
+    })();
+
+    // ============ Copy / Download helpers ============
+    function renderResult(box, text, filename) {
+        box.dataset.raw = text;
+        box.classList.remove('hidden');
+        box.innerHTML = `<div class="flex justify-end gap-2 mb-2">
+            <button onclick="copyResult(this)" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-copy"></i> <span>${I18N[currentUiLang].copy}</span></button>
+            <button onclick="downloadResult(this, '${filename}')" class="chip hover:bg-[var(--panel-2)]"><i class="fa-solid fa-download"></i> <span>${I18N[currentUiLang].download}</span></button>
+        </div>` + formatReportText(text);
+    }
+    function copyResult(btn) {
+        const box = btn.closest('[data-raw]');
+        const raw = box ? box.dataset.raw : '';
+        navigator.clipboard.writeText(raw || '').then(() => flashCopied(btn));
+    }
+    function downloadResult(btn, filename) {
+        const box = btn.closest('[data-raw]');
+        const raw = box ? box.dataset.raw : '';
+        triggerDownload(raw || '', filename || 'yusr-result.txt');
+    }
+    function flashCopied(btn) {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> ' + (currentUiLang === 'en' ? 'Copied' : 'تم النسخ');
+        btn.classList.add('copied-flash');
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied-flash'); }, 1500);
+    }
+    function triggerDownload(text, filename) {
+        // ملحوظة: كانت الرموز الغريبة بتظهر عند فتح الملف النازل لأن الملف كان بينزل من غير BOM
+        // فبرامج زي Notepad كانت بتفتحه بترميز غلط بدل UTF-8، فيظهر النص العربي مكسّر.
+        // الحل: نضيف UTF-8 BOM (\uFEFF) في أول الملف، وده بيخلي أي برنامج يفتح النص صح دايماً.
+        const BOM = '\uFEFF';
+        const normalized = String(text ?? '').replace(/\r\n/g, '\n');
+        const blob = new Blob([BOM + normalized], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+    }
+    function copyPlainText(text, btn) {
+        navigator.clipboard.writeText(text).then(() => flashCopied(btn));
+    }
+    function copyChatTranscript() {
+        const text = chatHistory.filter(m => m.role !== 'system').map(m => (m.role === 'assistant' ? 'أحمد: ' : 'أنت: ') + m.content).join('\n\n');
+        navigator.clipboard.writeText(text);
+        alert(currentUiLang === 'en' ? 'Conversation copied!' : 'تم نسخ المحادثة!');
+    }
+    function downloadChatTranscript() {
+        const text = chatHistory.filter(m => m.role !== 'system').map(m => (m.role === 'assistant' ? 'أحمد: ' : 'أنت: ') + m.content).join('\n\n');
+        triggerDownload(text, 'interview-transcript.txt');
+    }
+
+    // ============ Speech recognition (interview mic) ============
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.lang = currentAppLang;
+        recognition.continuous = false;
+        recognition.onstart = () => {
+            isRecording = true; recordStartTime = Date.now();
+            document.getElementById('mic-btn').classList.add('bg-red-500/20', 'text-red-400', 'recording-pulse');
+            document.getElementById('user-chat-input').placeholder = "جاري الاستماع إليك...";
+        };
+        recognition.onresult = (e) => {
+            const t = e.results[0][0].transcript;
+            recordSpeakingStats(t);
+            document.getElementById('user-chat-input').value = t;
+            stopMic(); sendUserAnswer();
+        };
+        recognition.onerror = () => stopMic();
+        recognition.onend = () => stopMic();
+    }
+    function recordSpeakingStats(t) {
+        const dur = Math.max(0.5, (Date.now() - recordStartTime) / 1000);
+        const wc = t.trim().split(/\s+/).filter(Boolean).length;
+        const wpm = Math.round((wc / dur) * 60);
+        const fillers = (t.match(/(يعني|امم+|إمم+|اه+|آه+|خلاص بس|يعني كده)/g) || []).length;
+        speakingStats.push({ t, dur: Math.round(dur), wc, wpm, fillers });
+    }
+    function toggleMic() {
+        if (!recognition) return alert("المتصفح لا يدعم التسجيل الصوتي المباشر.");
+        if (isRecording) recognition.stop();
+        else { if (window.speechSynthesis) window.speechSynthesis.cancel(); recognition.start(); }
+    }
+    function stopMic() {
+        isRecording = false;
+        document.getElementById('mic-btn').classList.remove('bg-red-500/20', 'text-red-400', 'recording-pulse');
+        document.getElementById('user-chat-input').placeholder = "تحدث بالميكروفون أو اكتب هنا...";
+    }
+
+    // ============ Mic recording for transcription tool (يستخدم Whisper مش المتصفح، عشان دقة أعلى بكتير حتى مع الضوضاء) ============
+    let isTranscribing = false, transcribeMediaRecorder = null, transcribeChunks = [], transcribeStream = null;
+    async function toggleTranscribeMic() {
+        const btn = document.getElementById('transcribe-mic-btn');
+        const status = document.getElementById('transcribe-status');
+        if (isTranscribing) {
+            isTranscribing = false;
+            btn.classList.remove('bg-red-500/20', 'text-red-400', 'recording-pulse');
+            status.innerText = "جاري تفريغ التسجيل بدقة عالية...";
+            if (transcribeMediaRecorder && transcribeMediaRecorder.state !== 'inactive') transcribeMediaRecorder.stop();
+            return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("المتصفح لا يدعم التسجيل الصوتي المباشر."); return;
+        }
+        try {
+            transcribeStream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+            });
+        } catch (e) {
+            alert("محتاج إذن الوصول للمايك عشان التسجيل يشتغل."); return;
+        }
+        transcribeChunks = [];
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+        transcribeMediaRecorder = mimeType ? new MediaRecorder(transcribeStream, { mimeType }) : new MediaRecorder(transcribeStream);
+        transcribeMediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) transcribeChunks.push(e.data); };
+        transcribeMediaRecorder.onstop = async () => {
+            transcribeStream.getTracks().forEach(t => t.stop());
+            const blob = new Blob(transcribeChunks, { type: transcribeMediaRecorder.mimeType || 'audio/webm' });
+            if (blob.size < 800) { status.innerText = "معلش، مسجّلش صوت كفاية. جرب تاني."; return; }
+            if (!checkDeviceTrial()) { status.innerText = ''; return; }
+            const previous = document.getElementById('transcribe-raw').value;
+            try {
+                const text = await transcribeAudioBlob(blob, 'mic-recording.webm');
+                document.getElementById('transcribe-raw').value = (previous ? previous + ' ' : '') + text;
+                status.innerText = "✓ اتفرّغ بنجاح. راجع النص تحت واضغط \"نظّف وحسّن التنسيق\".";
+                incrementDeviceUsage();
+            } catch (e) {
+                console.warn('Mic transcription failed:', e);
+                status.innerText = "تعذر تفريغ التسجيل. جرب تاني أو الصق النص يدوياً.";
+            }
+        };
+        transcribeMediaRecorder.start();
+        isTranscribing = true;
+        btn.classList.add('bg-red-500/20', 'text-red-400', 'recording-pulse');
+        status.innerText = "بيسجل دلوقتي بجودة عالية... اضغط تاني عشان توقف ويتفرّغ النص.";
+    }
+    function stopTranscribeMic() {
+        isTranscribing = false;
+        document.getElementById('transcribe-mic-btn').classList.remove('bg-red-500/20', 'text-red-400', 'recording-pulse');
+        if (transcribeMediaRecorder && transcribeMediaRecorder.state !== 'inactive') transcribeMediaRecorder.stop();
+    }
+
+    async function speakText(text) {
+        if (!isVoiceEnabled) return;
+        const indicator = document.getElementById('ai-speaking-indicator');
+        document.getElementById('status-text').innerText = "أحمد (HR) يتحدث...";
+        indicator.classList.remove('hidden');
+        try {
+            const voiceId = "pNInz6obpgDQGcFmaJgB";
+            const response = await fetch(`${CLOUD_FUNCTIONS_BASE}/elevenlabsSpeak`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, voiceId })
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const audio = new Audio(URL.createObjectURL(blob));
+                audio.onended = () => indicator.classList.add('hidden');
+                audio.play();
+                return;
+            } else console.warn("ElevenLabs error:", response.status);
+        } catch (e) { console.error("ElevenLabs Voice Error:", e); }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text.replace(/[*_#`~]/g, ''));
+            utterance.lang = currentAppLang; utterance.pitch = 0.9; utterance.rate = 0.95;
+            utterance.onend = () => indicator.classList.add('hidden');
+            utterance.onerror = () => indicator.classList.add('hidden');
+            window.speechSynthesis.speak(utterance);
+        } else indicator.classList.add('hidden');
+    }
+
+    // ============ Interview flow ============
+    async function startInterviewSession() {
+        if (!checkDeviceTrial()) return;
+        interviewRole = document.getElementById('interview-role').value;
+        selectedNationality = document.getElementById('interviewer-nationality').value;
+        if (!interviewRole) return alert("يرجى كتابة اسم الوظيفة أولاً.");
+
+        document.getElementById('interview-setup-box').classList.add('hidden');
+        document.getElementById('chat-interface').classList.remove('hidden');
+        document.getElementById('chat-interface').classList.add('flex');
+        speakingStats = [];
+
+        const systemPrompt = `أنت مدير HR خبير واسمك (أحمد).
+تجري مقابلة عمل مع المتقدم لوظيفة: (${interviewRole}).
+الشخصية المطلوب المحاكاة بها: (${selectedNationality}).
+${cvContent ? 'خبرات المتقدم: ' + cvContent : ''}
+تعليمات:
+1. اتكلم بطبيعية وسلاسة كأنك محاور حقيقي.
+2. وجه سؤالاً واحداً مختصراً في كل مرة (سطرين كحد أقصى).
+3. ابدأ فوراً بالتحية وسؤاله عن نفسه بخبرته.`;
+
+        chatHistory = [{ role: "system", content: systemPrompt }];
+        appendChatMessage("ai", "جاري الاتصال بالمحاور...");
+        incrementDeviceUsage();
+
+        try {
+            const aiResponse = await callGroqConversation(chatHistory);
+            document.getElementById('chat-history').lastChild.remove();
+            chatHistory.push({ role: "assistant", content: aiResponse });
+            appendChatMessage("ai", aiResponse);
+            speakText(aiResponse);
+        } catch (err) {
+            console.error(err);
+            document.getElementById('chat-history').lastChild.remove();
+            const fallback = "أهلاً بيك! أنا أحمد مدير التوظيف، جاهز نبدأ؟ عرفني بنفسك وبخبرتك في المجال ده.";
+            appendChatMessage("ai", fallback); speakText(fallback);
+        }
+    }
+
+    async function sendUserAnswer() {
+        const inputField = document.getElementById('user-chat-input');
+        const userMsg = inputField.value.trim();
+        if (!userMsg) return;
+        appendChatMessage("user", userMsg);
+        inputField.value = "";
+        const indicator = document.getElementById('ai-speaking-indicator');
+        document.getElementById('status-text').innerText = "أحمد يفكر في الرد...";
+        indicator.classList.remove('hidden');
+        chatHistory.push({ role: "user", content: userMsg });
+        try {
+            const aiResponse = await callGroqConversation(chatHistory);
+            indicator.classList.add('hidden');
+            chatHistory.push({ role: "assistant", content: aiResponse });
+            appendChatMessage("ai", aiResponse);
+            speakText(aiResponse);
+        } catch (err) {
+            indicator.classList.add('hidden');
+            appendChatMessage("ai", "معلش، حصلت مشكلة بسيطة في الشبكة.. ممكن تعيد إجابتك تاني؟");
+        }
+    }
+
+    async function callGroqConversation(messages) {
+        try {
+            const response = await fetch(`${CLOUD_FUNCTIONS_BASE}/groqChat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages })
+            });
+            if (response.ok) { const data = await response.json(); return data.content; }
+            console.warn("Groq (via Cloud Function) error:", response.status, await response.text().catch(() => ""));
+        } catch (e) { console.warn("مسار Groq تعذر:", e); }
+        try {
+            const res = await fetch("https://text.pollinations.ai/openai", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages, model: "openai", jsonMode: false })
+            });
+            if (res.ok) { const data = await res.json(); if (data?.choices?.[0]?.message?.content) return data.choices[0].message.content; }
+        } catch (err) { console.warn("مسار بديل 1 تعذر:", err); }
+        try {
+            const lastMsg = messages[messages.length - 1].content;
+            const encoded = encodeURIComponent(lastMsg);
+            const simpleRes = await fetch(`https://text.pollinations.ai/${encoded}`);
+            if (simpleRes.ok) { const t = await simpleRes.text(); if (t) return t; }
+        } catch (e) { console.error("كل المسارات فشلت", e); }
+        throw new Error("فشل الاتصال بالذكاء الاصطناعي");
+    }
+
+    // ============ Performance report ============
+    function openReportModal() { document.getElementById('report-modal').classList.remove('hidden'); }
+    function closeReportModal() { document.getElementById('report-modal').classList.add('hidden'); }
+
+    async function generatePerformanceReport() {
+        const answered = chatHistory.filter(m => m.role === 'user').length;
+        if (answered < 2) return alert("كمّل شوية أسئلة كمان الأول عشان نقدر نديك تقييم دقيق.");
+        openReportModal();
+        const body = document.getElementById('report-body');
+        body.innerHTML = spinnerHTML("جاري تحليل أدائك بالتفصيل...");
+
+        let voiceInsights = "المتقدم كتب أغلب إجاباته بدل التحدث، فمفيش بيانات كافية عن سرعة الكلام أو التردد.";
+        if (speakingStats.length > 0) {
+            const avgWpm = Math.round(speakingStats.reduce((a, s) => a + (s.wpm || 0), 0) / speakingStats.length);
+            const totalFillers = speakingStats.reduce((a, s) => a + s.fillers, 0);
+            voiceInsights = `تحدث بالميكروفون في ${speakingStats.length} إجابة. متوسط السرعة ${avgWpm} كلمة/دقيقة (الطبيعي الهادئ 110-150). كلمات التردد الكلية: ${totalFillers}. استخدمهم كمؤشر تقريبي فقط.`;
+        }
+        const transcript = chatHistory.filter(m => m.role !== 'system').map(m => (m.role === 'assistant' ? 'أحمد: ' : 'المتقدم: ') + m.content).join('\n');
+
+        const prompt = [
+            { role: "system", content: `أنت خبير تدريب مقابلات محترف وصريح جداً. حلل نص المقابلة وابنِ تقرير بنفس الترتيب: 1) تقييم عام من 100 مع السبب 2) نقاط قوة بأمثلة حقيقية من كلامه 3) نقاط تحسين محددة إجابة بإجابة 4) مستوى الثقة والتوتر بناءً على أسلوب كلامه وبيانات السرعة/التردد المرفقة، بصراحة ووضوح 5) 3-5 نصائح عملية فورية 6) خلاصة تحفيزية قصيرة. اكتب بأسلوب واضح مباشر بدون رموز markdown.` },
+            { role: "user", content: `بيانات صوتية:\n${voiceInsights}\n\nنص المقابلة:\n${transcript}` }
+        ];
+        try { renderResult(body, await callGroqConversation(prompt), 'performance-report.txt'); }
+        catch (e) { body.innerHTML = errorHTML("تعذر توليد التقرير الآن، جرب تاني بعد شوية."); }
+    }
+
+    // ============ FAQ generator ============
+    async function runFaqGenerator() {
+        const role = document.getElementById('faq-role').value.trim();
+        if (!role) return alert("اكتب اسم الوظيفة أولاً.");
+        if (!checkDeviceTrial()) return;
+        const count = document.getElementById('faq-count').value;
+        const box = document.getElementById('faq-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري تجهيز الأسئلة...");
+        incrementDeviceUsage();
+        const messages = [
+            { role: "system", content: `أنت خبير توظيف. جهّز ${count} من أكثر الأسئلة شيوعاً في مقابلات وظيفة "${role}" فعلياً، كل سؤال ومعاه إجابة نموذجية مقنعة واقعية (3-4 أسطر) تزود فرصة القبول، بدون مبالغة أو كلام عام. رقّم الأسئلة، واكتب "الإجابة النموذجية:" قبل كل إجابة. بدون رموز markdown.` },
+            { role: "user", content: `وظيفة: ${role}` }
+        ];
+        try { renderResult(box, await callGroqConversation(messages), 'faq-answers.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذر التجهيز، حاول تاني."); }
+    }
+
+    // ============ Career planner ============
+    async function runCareerPlanner() {
+        const current = document.getElementById('career-current').value.trim();
+        const target = document.getElementById('career-target').value.trim();
+        if (!current || !target) return alert("اكتب وضعك الحالي وهدفك الأول.");
+        if (!checkDeviceTrial()) return;
+        const context = document.getElementById('career-context').value.trim();
+        const box = document.getElementById('career-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري بناء خطتك...");
+        incrementDeviceUsage();
+        const messages = [
+            { role: "system", content: `أنت مستشار تطوير مهني محترف. ابنِ خطة عملية واقعية بمراحل زمنية تقريبية (مثلاً أول 3 شهور، 6 شهور، سنة) توصل الشخص من وضعه الحالي لهدفه، تشمل: المهارات المطلوب اكتسابها، مصادر تعلم عامة (نوع الدورة/الشهادة مش رابط محدد)، خطوات عملية، ونصيحة لبناء بورتفوليو أو خبرة عملية في المجال الجديد. بدون رموز markdown.` },
+            { role: "user", content: `الوضع الحالي: ${current}\nالهدف: ${target}\n${context ? 'تفاصيل إضافية: ' + context : ''}` }
+        ];
+        try { renderResult(box, await callGroqConversation(messages), 'career-plan.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذر بناء الخطة، حاول تاني."); }
+    }
+
+    // ============ CV builder (two independent modes) ============
+    function switchCvTab(tab) {
+        const plainTab = document.getElementById('cv-tab-plain');
+        const liTab = document.getElementById('cv-tab-linkedin');
+        const plainBtn = document.getElementById('cv-tab-btn-plain');
+        const liBtn = document.getElementById('cv-tab-btn-linkedin');
+        const activeCls = ['bg-[#2a2f36]', 'text-slate-100'];
+        if (tab === 'linkedin') {
+            plainTab.classList.add('hidden'); liTab.classList.remove('hidden');
+            liBtn.classList.add('bg-[#2a2f36]', 'text-slate-100'); liBtn.classList.remove('text-slate-400');
+            liBtn.style.boxShadow = 'inset 0 0 0 1px #3a4048';
+            plainBtn.classList.remove('bg-[#2a2f36]', 'text-slate-100'); plainBtn.classList.add('text-slate-400');
+            plainBtn.style.boxShadow = '';
+        } else {
+            liTab.classList.add('hidden'); plainTab.classList.remove('hidden');
+            plainBtn.classList.add('bg-[#2a2f36]', 'text-slate-100'); plainBtn.classList.remove('text-slate-400');
+            plainBtn.style.boxShadow = 'inset 0 0 0 1px #3a4048';
+            liBtn.classList.remove('bg-[#2a2f36]', 'text-slate-100'); liBtn.classList.add('text-slate-400');
+            liBtn.style.boxShadow = '';
+        }
+    }
+    function previewCvLiPhoto(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById('cv-li-photo-preview').src = reader.result;
+            document.getElementById('cv-li-photo-preview').classList.remove('hidden');
+            document.getElementById('cv-li-photo-icon').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+    async function runCvBuilder(variant) {
+        variant = variant === 'linkedin' ? 'linkedin' : 'plain';
+        const prefix = variant === 'linkedin' ? 'cv-li-' : 'cv-plain-';
+        const name = document.getElementById(prefix + 'name').value.trim();
+        const title = document.getElementById(prefix + 'title').value.trim();
+        const exp = document.getElementById(prefix + 'experience').value.trim();
+        if (!name || !exp) return alert("اكتب اسمك وخبراتك على الأقل.");
+        if (!checkDeviceTrial()) return;
+        const edu = document.getElementById(prefix + 'education').value.trim();
+        const skills = document.getElementById(prefix + 'skills').value.trim();
+        const box = document.getElementById(variant === 'linkedin' ? 'cv-result-linkedin' : 'cv-result-plain');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري صياغة سيرتك الذاتية...");
+        incrementDeviceUsage();
+
+        let messages;
+        if (variant === 'linkedin') {
+            const phone = document.getElementById('cv-li-phone').value.trim();
+            const email = document.getElementById('cv-li-email').value.trim();
+            const linkedin = document.getElementById('cv-li-linkedin').value.trim();
+            const location = document.getElementById('cv-li-location').value.trim();
+            messages = [
+                { role: "system", content: `أنت خبير كتابة سير ذاتية بستايل لينكد إن الاحترافي. اكتب سيرة ذاتية بنفس روح صفحة لينكد إن: تبدأ بسطر "معلومات التواصل" يجمع الهاتف والإيميل ورابط لينكد إن والمدينة لو موجودين، بعدين قسم "About / نبذة تعريفية" قصير وقوي، بعدين "الخبرة العملية" بترتيب زمني عكسي وبجمل فعل نشطة وإنجازات مبنية على أرقام لو أمكن استنتاجها، بعدين "التعليم"، وأخيراً "المهارات". رتّبها بعناوين نصية واضحة بدون رموز markdown، جاهزة للنسخ مباشرة.` },
+                { role: "user", content: `الاسم: ${name}\nالمسمى المستهدف: ${title}\nمعلومات التواصل: هاتف: ${phone || '-'} | إيميل: ${email || '-'} | لينكد إن: ${linkedin || '-'} | الموقع: ${location || '-'}\nالخبرات: ${exp}\nالمؤهلات: ${edu}\nالمهارات: ${skills}` }
+            ];
+        } else {
+            messages = [
+                { role: "system", content: `أنت خبير كتابة سير ذاتية احترافية. اكتب سيرة ذاتية نصية عادية (بدون أي إشارة لصورة) منظمة بصياغة قوية وجمل فعل نشطة وإنجازات مبنية على أرقام لو أمكن استنتاجها من الكلام، بالأقسام: ملخص احترافي قصير، الخبرات العملية، المؤهلات، المهارات. رتّبها بعناوين نصية واضحة بدون رموز markdown، جاهزة للنسخ مباشرة في Word.` },
+                { role: "user", content: `الاسم: ${name}\nالمسمى المستهدف: ${title}\nالخبرات: ${exp}\nالمؤهلات: ${edu}\nالمهارات: ${skills}` }
+            ];
+        }
+        try { renderResult(box, await callGroqConversation(messages), variant === 'linkedin' ? 'cv-linkedin-style.txt' : 'cv.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذر إنشاء السيرة الذاتية، حاول تاني."); }
+    }
+
+    // ============ Portfolio (guided AI Q&A) ============
+    let pfChatHistory = [];
+    function startPortfolioChat() {
+        const field = document.getElementById('pf-field').value.trim();
+        if (!field) return alert("اكتب مجالك أولاً.");
+        document.getElementById('pf-setup-box').classList.add('hidden');
+        document.getElementById('pf-chat-interface').classList.remove('hidden');
+        document.getElementById('pf-chat-interface').classList.add('flex');
+        document.getElementById('pf-chat-history').innerHTML = '';
+        const systemPrompt = `أنت مستشار بناء بورتفوليوهات محترف. المستخدم مجاله: (${field}). مهمتك تسأله أسئلة قصيرة ومباشرة (سؤال واحد كل مرة، سطر أو سطرين) عشان تجمع منه: أهم مشاريعه/أعماله، الأدوات والمهارات المستخدمة، أكبر إنجاز حقق نتيجة ملموسة، الجمهور المستهدف من البورتفوليو، والأسلوب/النبرة اللي يفضلها (رسمي/إبداعي/بسيط). اسأل سؤال واحد بس في كل رد، وابدأ فوراً بسؤال عن أهم مشروعين أو أعمال عنده.`;
+        pfChatHistory = [{ role: "system", content: systemPrompt }];
+        appendPfMessage("ai", "جاري تجهيز الأسئلة...");
+        callGroqConversation(pfChatHistory).then(res => {
+            document.getElementById('pf-chat-history').lastChild.remove();
+            pfChatHistory.push({ role: "assistant", content: res });
+            appendPfMessage("ai", res);
+        }).catch(() => {
+            document.getElementById('pf-chat-history').lastChild.remove();
+            const fallback = "احكيلي عن أهم مشروعين أو أعمال عملتهم في مجالك، مع وصف بسيط لكل واحد.";
+            pfChatHistory.push({ role: "assistant", content: fallback });
+            appendPfMessage("ai", fallback);
+        });
+    }
+    function appendPfMessage(sender, message) {
+        const box = document.getElementById('pf-chat-history');
+        const div = document.createElement('div');
+        if (sender === "ai") {
+            div.className = "panel border border-[var(--border)] p-3 rounded-xl text-xs sm:text-sm";
+            div.innerHTML = `<div class="flex items-center gap-1 text-slate-300 font-bold text-[10px] mb-1"><i class="fa-solid fa-wand-magic-sparkles"></i> المساعد</div><div>${message}</div>`;
+        } else {
+            div.className = "bg-[#262b32] border border-[var(--border)] p-3 rounded-xl text-xs sm:text-sm mr-4";
+            div.innerHTML = `<div class="flex items-center gap-1 text-slate-400 font-bold text-[10px] mb-1"><i class="fa-solid fa-user"></i> أنت</div><div>${message}</div>`;
+        }
+        box.appendChild(div); box.scrollTop = box.scrollHeight;
+    }
+    async function sendPortfolioAnswer() {
+        const input = document.getElementById('pf-chat-input');
+        const msg = input.value.trim(); if (!msg) return;
+        appendPfMessage("user", msg); input.value = "";
+        pfChatHistory.push({ role: "user", content: msg });
+        appendPfMessage("ai", '<i class="fa-solid fa-spinner fa-spin"></i>');
+        try {
+            const res = await callGroqConversation(pfChatHistory);
+            document.getElementById('pf-chat-history').lastChild.remove();
+            pfChatHistory.push({ role: "assistant", content: res });
+            appendPfMessage("ai", res);
+        } catch (e) {
+            document.getElementById('pf-chat-history').lastChild.remove();
+            appendPfMessage("ai", "معلش حصلت مشكلة، اكتب إجابتك تاني.");
+        }
+    }
+    function copyPfTranscript() {
+        const text = pfChatHistory.filter(m => m.role !== 'system').map(m => (m.role === 'assistant' ? 'المساعد: ' : 'أنت: ') + m.content).join('\n\n');
+        navigator.clipboard.writeText(text);
+        alert(currentUiLang === 'en' ? 'Copied!' : 'تم النسخ!');
+    }
+    async function runPortfolioBuilder() {
+        if (pfChatHistory.filter(m => m.role === 'user').length < 1) return alert("جاوب على سؤال أو اتنين الأول عشان نقدر نجهزلك محتوى حقيقي.");
+        if (!checkDeviceTrial()) return;
+        const box = document.getElementById('portfolio-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري تجهيز محتوى البورتفوليو...");
+        incrementDeviceUsage();
+        const convo = pfChatHistory.filter(m => m.role !== 'system').map(m => (m.role === 'assistant' ? 'سؤال: ' : 'إجابة: ') + m.content).join('\n');
+        const messages = [
+            { role: "system", content: `أنت مستشار بناء بورتفوليوهات احترافية. بناءً على الحوار المرفق مع المستخدم، جهّز محتوى نصي منظم لصفحة بورتفوليو شخصي: نبذة تعريفية جذابة (About)، وصف احترافي مقنع لكل مشروع بأسلوب يبرز النتيجة والقيمة مش بس الوصف التقني، واقتراح لعناوين الأقسام الرئيسية للصفحة. بدون رموز markdown.` },
+            { role: "user", content: `مجال المستخدم: ${document.getElementById('pf-field').value.trim()}\n\nالحوار:\n${convo}` }
+        ];
+        try { renderResult(box, await callGroqConversation(messages), 'portfolio.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذر التجهيز، حاول تاني."); }
+    }
+
+    // ============ Academic writing review ============
+    async function runWritingReview() {
+        const text = document.getElementById('writing-input').value.trim();
+        if (!text) return alert("الصق النص أولاً.");
+        if (!checkDeviceTrial()) return;
+        const mode = document.getElementById('writing-mode').value;
+        const topic = document.getElementById('writing-topic').value.trim();
+        const box = document.getElementById('writing-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري المراجعة...");
+        incrementDeviceUsage();
+        const messages = [
+            { role: "system", content: `أنت مدقق لغوي وأكاديمي محترف. مهمتك: ${mode}. لو النص فيه أخطاء إملائية أو نحوية، اذكرها بوضوح مع التصحيح. لو المطلوب تنسيق أكاديمي، اقترح تعديلات محددة للهوامش والعناوين وطريقة كتابة المراجع حسب الأسلوب المطلوب، كتوصيات نصية يطبقها المستخدم بنفسه في Word - إنت مش بتنسق ملف فعلي. بدون رموز markdown.` },
+            { role: "user", content: `${topic ? 'موضوع البحث: ' + topic + '\n\n' : ''}النص:\n${text}` }
+        ];
+        try { renderResult(box, await callGroqConversation(messages), 'writing-review.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذرت المراجعة، حاول تاني."); }
+    }
+
+    // ============ Summarizer ============
+    async function runSummarizer() {
+        const text = document.getElementById('summarizer-input').value.trim();
+        if (!text) return alert("يرجى لصق نص أولاً.");
+        if (!checkDeviceTrial()) return;
+        const style = document.getElementById('summary-style').value;
+        const box = document.getElementById('summarizer-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري التلخيص...");
+        incrementDeviceUsage();
+        const messages = [
+            { role: "system", content: `أنت مساعد تلخيص نصوص. أسلوب التلخيص: ${style}. كن دقيقاً واحتفظ بالجوهر فقط، بدون رموز markdown.` },
+            { role: "user", content: text }
+        ];
+        try { renderResult(box, await callGroqConversation(messages), 'summary.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذر التلخيص، حاول تاني."); }
+    }
+
+    // ============ Transcribe: file upload (real Groq Whisper transcription) ============
+    // ============ Shared high-accuracy transcription helper (Whisper large-v3) ============
+    // إعدادات مضبوطة عشان الدقة تبقى أعلى ما يمكن حتى مع الضوضاء: temperature=0 (بيمنع الموديل يتخيل كلام)،
+    // + prompt سياقي يوجّه الموديل للهجة/علامات الترقيم الصحيحة، + verbose_json للحصول على أدق نتيجة ممكنة.
+    async function transcribeAudioBlob(blob, filename) {
+        const form = new FormData();
+        form.append('file', blob, filename || 'audio.webm');
+        form.append('model', 'whisper-large-v3');
+        form.append('temperature', '0');
+        form.append('response_format', 'verbose_json');
+        const langSel = document.getElementById('transcribe-source-lang').value.split('-')[0];
+        if (langSel) form.append('language', langSel);
+        form.append('prompt', 'نص مفرّغ بدقة عالية بعلامات ترقيم صحيحة، حتى لو في ضوضاء أو تشويش في الخلفية.');
+        const res = await fetch(`${CLOUD_FUNCTIONS_BASE}/groqTranscribe`, {
+            method: 'POST',
+            body: form
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        return (data.text || '').trim();
+    }
+    async function handleAudioFileUpload(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const status = document.getElementById('audio-upload-status');
+        status.innerText = (currentUiLang === 'en' ? 'Uploading & transcribing: ' : 'جاري رفع وتفريغ بدقة عالية: ') + file.name + ' …';
+        if (!checkDeviceTrial()) { status.innerText = ''; return; }
+        try {
+            const text = await transcribeAudioBlob(file, file.name);
+            document.getElementById('transcribe-raw').value = text;
+            status.innerText = currentUiLang === 'en' ? '✓ Transcribed successfully. Review below, then click Clean Up.' : '✓ اتفرّغ بنجاح. راجع النص تحت واضغط "نظّف وحسّن التنسيق".';
+            incrementDeviceUsage();
+        } catch (e) {
+            console.warn('Whisper transcription failed:', e);
+            status.innerText = currentUiLang === 'en' ? 'Auto-transcription failed. Please paste the text manually or try again.' : 'تعذر التفريغ التلقائي. جرب تاني أو الصق النص يدوياً.';
+        }
+    }
+
+    // ============ Transcribe cleanup/translate ============
+    async function runTranscribeCleanup() {
+        const raw = document.getElementById('transcribe-raw').value.trim();
+        if (!raw) return alert("سجّل أو الصق نص أولاً.");
+        if (!checkDeviceTrial()) return;
+        const targetLang = document.getElementById('transcribe-target-lang').value;
+        const box = document.getElementById('transcribe-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري التنظيف والتنسيق...");
+        incrementDeviceUsage();
+        const instruction = targetLang
+            ? `نظّف علامات الترقيم وصحح الأخطاء الإملائية الواضحة فقط في النص، وترجمه بالكامل إلى ${targetLang} بجودة عالية ودقة كاملة في المعنى.`
+            : `نظّف علامات الترقيم وصحح الأخطاء الإملائية الواضحة فقط في النص من غير ما تغير اللغة أو المعنى.`;
+        const messages = [
+            { role: "system", content: `أنت مدقق تفريغ صوتي محترف جداً ودقيق للغاية. ${instruction} القاعدة الأهم: النص ده مفرّغ من صوت حقيقي، فممنوع تماماً إنك تضيف أي كلمة أو جملة مش موجودة، أو تحذف أي كلمة قيلت فعلاً، أو تلخص، أو "تفهم قصد المتكلم" وتغيّر كلامه - لازم يفضل نفس الكلام بالظبط اللي اتقال، بس بصياغة نظيفة وعلامات ترقيم صحيحة وتقسيم فقرات منطقي. لو في كلمة مش واضحة في الأصل، سيبها زي ما هي من غير تخمين. بدون رموز markdown.` },
+            { role: "user", content: raw }
+        ];
+        try { renderResult(box, await callGroqConversation(messages), 'transcript.txt'); }
+        catch (e) { box.innerHTML = errorHTML("تعذر التنظيف، حاول تاني."); }
+    }
+
+    // ============ Video montage: AI edit plan + basic in-browser trim ============
+    let montageFile = null, montageVideoURL = null;
+    function handleMontageVideoUpload(e) {
+        const file = e.target.files[0]; if (!file) return;
+        montageFile = file;
+        if (montageVideoURL) URL.revokeObjectURL(montageVideoURL);
+        montageVideoURL = URL.createObjectURL(file);
+        const vid = document.getElementById('mo-video-preview');
+        vid.src = montageVideoURL; vid.classList.remove('hidden');
+        document.getElementById('mo-auto-box').classList.remove('hidden');
+        document.getElementById('mo-trim-box').classList.remove('hidden');
+    }
+    async function runMontagePlanner() {
+        const instructions = document.getElementById('mo-instructions').value.trim();
+        if (!instructions) return alert("اكتب تعليماتك للمونتاج أولاً.");
+        if (!checkDeviceTrial()) return;
+        const type = document.getElementById('mo-type').value;
+        const box = document.getElementById('montage-result');
+        box.classList.remove('hidden'); box.innerHTML = spinnerHTML("جاري تحليل الفيديو وبناء خطة المونتاج...");
+        incrementDeviceUsage();
+        const vid = document.getElementById('mo-video-preview');
+        const duration = (montageFile && vid.duration && !isNaN(vid.duration)) ? Math.round(vid.duration) + ' ثانية' : 'غير معروفة';
+        const messages = [
+            { role: "system", content: `أنت مدير مونتاج فيديو محترف جداً (خبرة سينمائية + محتوى سوشيال ميديا). المستخدم رفع فيديو من نوع "${type}" ومدته التقريبية ${duration}، واداك تعليمات دقيقة يجب اتباعها بالحرف. اكتب "خطة مونتاج احترافية" منظمة بالتفصيل تشمل: 1) ملخص لما هيتنفذ بناءً على طلبه بالظبط 2) تقسيم الفيديو لمشاهد/لقطات مقترحة مع توقيتات تقريبية وسبب كل قرار قص 3) اقتراحات الإيقاع (سريع/هادي) حسب نوع المحتوى 4) اقتراح موسيقى/مؤثرات صوت تناسب النوع ده تحديداً 5) اقتراح أسلوب تعليقات/كابشونز لو الفيديو نصايح أو تعليمي 6) ملاحظات ألوان وانتقالات احترافية. اتبع تعليمات المستخدم بالحرف ولا تتجاهل أي طلب فيها. بدون رموز markdown.` },
+            { role: "user", content: `نوع المحتوى: ${type}\nمدة الفيديو التقريبية: ${duration}\nتعليمات المستخدم بالحرف:\n${instructions}` }
+        ];
+        try {
+            renderResult(box, await callGroqConversation(messages), 'montage-plan.txt');
+        } catch (e) { box.innerHTML = errorHTML("تعذر بناء الخطة، حاول تاني."); }
+    }
+    // ============ Real automatic video execution (not just a text plan) ============
+    function loadScriptOnce(src) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) return resolve();
+            const s = document.createElement('script');
+            s.src = src; s.onload = () => resolve(); s.onerror = () => reject(new Error('تعذر تحميل مكتبة معالجة الفيديو.'));
+            document.head.appendChild(s);
+        });
+    }
+    let ffmpegInstance = null;
+    async function getFFmpegInstance(statusEl) {
+        if (ffmpegInstance) return ffmpegInstance;
+        if (statusEl) statusEl.innerText = 'جاري تحميل محرّك معالجة الفيديو (أول مرة بس)...';
+        await loadScriptOnce('https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js');
+        if (!window.FFmpeg) throw new Error('محرك المونتاج مش متاح في المتصفح ده.');
+        const { createFFmpeg } = window.FFmpeg;
+        ffmpegInstance = createFFmpeg({ log: false, corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js' });
+        await ffmpegInstance.load();
+        return ffmpegInstance;
+    }
+    async function runAutoEditVideo() {
+        if (!montageFile) return alert('ارفع فيديو الأول.');
+        const instructions = document.getElementById('mo-instructions').value.trim();
+        if (!instructions) return alert('اكتب تعليماتك للمونتاج أولاً.');
+        if (!checkDeviceTrial()) return;
+        const status = document.getElementById('mo-auto-status');
+        const vid = document.getElementById('mo-video-preview');
+        const duration = (vid && vid.duration && !isNaN(vid.duration)) ? vid.duration : 0;
+        status.innerText = 'جاري تحديد أفضل قرارات المونتاج بناءً على تعليماتك...';
+        incrementDeviceUsage();
+
+        let plan = { start: 0, end: duration || 10, speed: 1, fadeIn: false, fadeOut: false };
+        try {
+            const messages = [
+                { role: "system", content: `أنت مدير مونتاج فيديو. مهمتك تحدد إعدادات مونتاج تقنية قابلة للتنفيذ آلياً بناءً على تعليمات المستخدم ومدة الفيديو. أرجع فقط كائن JSON صالح بدون أي نص أو شرح أو رموز markdown حواليه، بالشكل ده بالظبط:
+{"start": رقم بالثواني لبداية المقطع, "end": رقم بالثواني لنهاية المقطع, "speed": رقم من 0.5 إلى 2 لسرعة التشغيل (1 يعني سرعة عادية), "fadeIn": true أو false, "fadeOut": true أو false}
+لو المستخدم ما حددش بداية/نهاية بالظبط في تعليماته، خلي start=0 وend=مدة الفيديو كاملة. اتبع تعليمات المستخدم بالحرف قد الإمكان (لو طلب سرعة، لو طلب يبدأ من ثانية معينة، لو طلب تلاشي دخول/خروج).` },
+                { role: "user", content: `مدة الفيديو: ${duration ? Math.round(duration) : 'غير معروفة'} ثانية\nتعليمات المستخدم بالحرف:\n${instructions}` }
+            ];
+            const raw = await callGroqConversation(messages);
+            const match = raw.match(/\{[\s\S]*\}/);
+            const parsed = JSON.parse(match ? match[0] : raw);
+            plan = { ...plan, ...parsed };
+        } catch (e) { console.warn('تعذر بناء خطة تنفيذية دقيقة، هيتم استخدام إعدادات افتراضية:', e); }
+
+        let start = Math.max(0, Number(plan.start) || 0);
+        let end = Number(plan.end);
+        if (!end || isNaN(end) || (duration && end > duration)) end = duration || (start + 10);
+        if (end <= start) end = start + Math.min(5, duration || 5);
+        let speed = Number(plan.speed); if (!speed || isNaN(speed)) speed = 1;
+        speed = Math.min(2, Math.max(0.5, speed));
+        const fadeIn = !!plan.fadeIn, fadeOut = !!plan.fadeOut;
+
+        try {
+            const ffmpeg = await getFFmpegInstance(status);
+            status.innerText = 'جاري تنفيذ المونتاج وتصدير الفيديو...';
+            const { fetchFile } = window.FFmpeg;
+            ffmpeg.FS('writeFile', 'input_src', await fetchFile(montageFile));
+
+            const vf = [], af = [];
+            if (speed !== 1) { vf.push(`setpts=${(1 / speed).toFixed(4)}*PTS`); af.push(`atempo=${speed}`); }
+            const clipDur = Math.max(0.5, (end - start) / speed);
+            if (fadeIn) vf.push(`fade=t=in:st=0:d=1`);
+            if (fadeOut) vf.push(`fade=t=out:st=${Math.max(0, clipDur - 1).toFixed(2)}:d=1`);
+
+            const args = ['-i', 'input_src', '-ss', String(start), '-to', String(end)];
+            if (vf.length) args.push('-vf', vf.join(','));
+            if (af.length) args.push('-af', af.join(','));
+            args.push('-y', 'output.mp4');
+            await ffmpeg.run(...args);
+
+            const data = ffmpeg.FS('readFile', 'output.mp4');
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const outVid = document.getElementById('mo-auto-output');
+            outVid.src = url; outVid.classList.remove('hidden');
+            const a = document.createElement('a'); a.href = url; a.download = 'yusr-edited-video.mp4'; document.body.appendChild(a); a.click(); a.remove();
+            status.innerText = '✓ اتعمل المونتاج والفيديو المُعدّل جاهز، وبدأ التحميل تلقائياً. تقدر كمان تشغّله فوق قبل ما تحمّله تاني.';
+        } catch (e) {
+            console.warn('Auto video edit failed:', e);
+            status.innerText = 'تعذر تنفيذ المونتاج تلقائياً في المتصفح ده (جرب Chrome على الكمبيوتر لأفضل أداء). ممكن تستخدم أداة القص اليدوي تحت كبديل.';
+        }
+    }
+
+    async function exportMontageTrim() {
+        const status = document.getElementById('mo-trim-status');
+        if (!montageFile) { status.innerText = "ارفع فيديو الأول."; return; }
+        const vid = document.getElementById('mo-video-preview');
+        const start = parseFloat(document.getElementById('mo-trim-start').value) || 0;
+        const end = parseFloat(document.getElementById('mo-trim-end').value) || (start + 1);
+        if (end <= start) { status.innerText = "نهاية القص لازم تكون بعد البداية."; return; }
+        if (!('captureStream' in vid) && !(vid.captureStream || vid.mozCaptureStream)) {
+            status.innerText = "المتصفح ده مش بيدعم القص المباشر. جرب Chrome على الكمبيوتر.";
+            return;
+        }
+        status.innerText = "جاري تجهيز المقطع المقصوص...";
+        try {
+            const stream = (vid.captureStream || vid.mozCaptureStream).call(vid);
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            const chunks = [];
+            recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'yusr-trimmed-clip.webm'; a.click();
+                URL.revokeObjectURL(url);
+                status.innerText = "✓ تم تصدير المقطع بصيغة webm.";
+            };
+            vid.currentTime = start;
+            vid.onseeked = () => {
+                vid.play();
+                recorder.start();
+                const stopAt = () => {
+                    if (vid.currentTime >= end) { recorder.stop(); vid.pause(); vid.onseeked = null; }
+                    else requestAnimationFrame(stopAt);
+                };
+                requestAnimationFrame(stopAt);
+            };
+        } catch (e) {
+            console.warn(e);
+            status.innerText = "تعذر تصدير المقطع في المتصفح ده.";
+        }
+    }
+
+    // ============ Screenshot (takes an image of a whole chat/box, even if it's long) ============
+    async function screenshotElement(elId, filename) {
+        const el = document.getElementById(elId);
+        if (!el || !el.childNodes.length) { alert('مفيش محادثة عشان تتصور لسه.'); return; }
+        if (typeof html2canvas === 'undefined') { alert('تعذر تحميل أداة التصوير، تأكد من الاتصال بالإنترنت وحاول تاني.'); return; }
+        // نفك أي تحديد ارتفاع/سكرول مؤقتاً عشان الصورة تاخد المحادثة كلها من أول لآخر حتى لو طويلة
+        const prevHeight = el.style.height, prevMaxHeight = el.style.maxHeight, prevOverflow = el.style.overflow;
+        el.style.height = 'auto'; el.style.maxHeight = 'none'; el.style.overflow = 'visible';
+        try {
+            let canvas = await html2canvas(el, {
+                backgroundColor: '#20252c',
+                scale: Math.min(2, window.devicePixelRatio || 1.5),
+                useCORS: true
+            });
+            // لو المحادثة طويلة والصورة الناتجة كبيرة جداً، نصغّرها عشان تبقى بحجم صورة عادي وسهلة المشاركة
+            const MAX_DIM = 3200;
+            if (canvas.width > MAX_DIM || canvas.height > MAX_DIM) {
+                const ratio = Math.min(MAX_DIM / canvas.width, MAX_DIM / canvas.height);
+                const scaledCanvas = document.createElement('canvas');
+                scaledCanvas.width = Math.round(canvas.width * ratio);
+                scaledCanvas.height = Math.round(canvas.height * ratio);
+                scaledCanvas.getContext('2d').drawImage(canvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+                canvas = scaledCanvas;
+            }
+            canvas.toBlob((blob) => {
+                if (!blob) { alert('تعذر إنشاء الصورة، حاول تاني.'); return; }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = filename || 'yusr-chat.png';
+                document.body.appendChild(a); a.click(); a.remove();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        } catch (e) {
+            console.warn('Screenshot failed:', e);
+            alert('تعذر تصوير المحادثة، حاول تاني.');
+        } finally {
+            el.style.height = prevHeight; el.style.maxHeight = prevMaxHeight; el.style.overflow = prevOverflow;
+        }
+    }
+
+    // ============ Shared helpers ============
+    function spinnerHTML(msg) { return `<div class="text-xs text-slate-400 flex items-center gap-2 justify-center py-8"><i class="fa-solid fa-spinner fa-spin"></i> ${msg}</div>`; }
+    function errorHTML(msg) { return `<div class="text-xs text-red-400 text-center py-8">${msg}</div>`; }
+    function formatReportText(text) {
+        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const bold = escaped.replace(/\*\*(.+?)\*\*/g, '<b class="text-slate-100">$1</b>');
+        return bold.split('\n').filter(l => l.trim().length > 0).map(l => `<p class="mb-2">${l}</p>`).join('');
+    }
+    function handleKeyPress(e) { if (e.key === 'Enter') sendUserAnswer(); }
+    function appendChatMessage(sender, message) {
+        const box = document.getElementById('chat-history');
+        const div = document.createElement('div');
+        if (sender === "ai") {
+            div.className = "panel border border-[var(--border)] p-3 rounded-xl text-xs sm:text-sm space-y-1";
+            div.innerHTML = `<div class="flex items-center gap-1 text-slate-300 font-bold text-[10px]"><i class="fa-solid fa-user-tie"></i> أحمد (HR)</div><div>${message}</div>`;
+        } else {
+            div.className = "bg-[#262b32] border border-[var(--border)] p-3 rounded-xl text-xs sm:text-sm space-y-1 mr-4";
+            div.innerHTML = `<div class="flex items-center gap-1 text-slate-400 font-bold text-[10px]"><i class="fa-solid fa-user"></i> أنت</div><div>${message}</div>`;
+        }
+        box.appendChild(div); box.scrollTop = box.scrollHeight;
+    }
+    function openPricingModal() { document.getElementById('pricing-modal').classList.remove('hidden'); }
+    function closePricingModal() { document.getElementById('pricing-modal').classList.add('hidden'); }
+    function openCvModal() { document.getElementById('cv-modal').classList.remove('hidden'); }
+    function closeCvModal() { document.getElementById('cv-modal').classList.add('hidden'); }
+    function saveCvData() { cvContent = document.getElementById('cv-text-input').value; closeCvModal(); alert("تم حفظ الخبرات! هتتخصص أسئلة المقابلة بناءً عليها."); }
+
+    checkDeviceTrial();
+    updateAccountChip();
+    applyI18n();
+</script>
+</body>
+</html>
