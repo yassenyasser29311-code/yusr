@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.yassenyasser29311_code.twa",
+        "sha256_cert_fingerprints": ["1A:A7:C5:DC:B1:59:C2:E3:77:FF:7B:19:A1:32:7F:DA:44:20:DA:AE:18:83:98:D2:E2:38:35:DB:3B:B9:89:05"]
+      }
+    }]
