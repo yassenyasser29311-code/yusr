@@ -250,39 +250,6 @@ body.hm-on footer{color:#8b93c9}
 .hm-light.show{display:flex}
 .hm-light img{max-width:100%;max-height:92vh;border-radius:16px;box-shadow:0 0 60px rgba(124,58,237,.7)}
 @media(prefers-reduced-motion:reduce){#tab-home *,#tab-home *::before{animation:none!important}.hm-card{opacity:1;--ty:0px}}
-
-/* ===== REPAIRS MODULE ===== */
-.rp-status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
-.rp-s-received{background:#312e81;color:#c7d2fe}.rp-s-diagnosing{background:#4c1d95;color:#ddd6fe}
-.rp-s-waiting_approval{background:#78350f;color:#fde68a}.rp-s-waiting_parts{background:#7c2d12;color:#fed7aa}
-.rp-s-repairing{background:#1e3a8a;color:#bfdbfe}.rp-s-ready{background:#064e3b;color:#a7f3d0}
-.rp-s-delivered{background:#14532d;color:#bbf7d0}.rp-s-unrepairable{background:#7f1d1d;color:#fecaca}.rp-s-cancelled{background:#374151;color:#d1d5db}
-.rp-code{font-family:Consolas,monospace;font-weight:800;letter-spacing:2px;color:#fbbf24;direction:ltr;display:inline-block}
-.rp-filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
-.rp-chip{padding:7px 13px;border-radius:20px;background:var(--white);border:1px solid var(--baby-blue);cursor:pointer;font-size:12.5px;font-weight:600;color:#c7d2fe}
-.rp-chip.active{background:#4338ca;color:#fff;border-color:#fbbf24}
-.rp-chip b{background:rgba(255,255,255,.18);border-radius:10px;padding:0 7px;margin-right:4px}
-.rp-warn{background:#4a3410;border:1px solid #fbbf24;color:#fde68a;padding:10px 12px;border-radius:10px;font-size:13px;margin:8px 0;line-height:1.7}
-.rp-danger{background:#4a1d3a;border:1px solid #f87171;color:#fecaca;padding:10px 12px;border-radius:10px;font-size:13px;margin:8px 0}
-.rp-late td{background:rgba(248,113,113,.10)}
-.rp-modal{max-width:760px;max-height:92vh;overflow-y:auto}
-.rp-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.rp-box{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.8}
-.rp-box h4{margin:0 0 4px;color:#a5b4fc;font-size:13px}
-.rp-tl{border-right:3px solid #4338ca;padding-right:12px;margin:8px 0;font-size:13px}
-.rp-tl div{margin-bottom:7px}.rp-tl small{color:var(--gray)}
-.rp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-#rpPrintArea{display:none}
-@media print{
-  body.rp-printing>*:not(#rpPrintArea){display:none!important}
-  body.rp-printing #rpPrintArea{display:block!important;background:#fff;color:#000;padding:0;direction:rtl;font-family:Tahoma,Arial,sans-serif}
-  .rp-slip{width:78mm;margin:0 auto;padding:6px;font-size:12px;line-height:1.6;border:1px dashed #000}
-  .rp-slip h2{text-align:center;margin:0 0 4px;font-size:16px}.rp-slip hr{border:0;border-top:1px dashed #000;margin:6px 0}
-  .rp-slip .big{font-size:26px;font-weight:900;letter-spacing:4px;text-align:center;direction:ltr}
-  .rp-slip .row{display:flex;justify-content:space-between;gap:6px}
-  .rp-slip small{font-size:10px}
-}
-
 </style>
 </head>
 <body>
@@ -303,7 +270,6 @@ body.hm-on footer{color:#8b93c9}
 <nav>
   <button class="tab-btn active" data-tab="home">🏠 الرئيسية</button>
   <button class="tab-btn" data-tab="dashboard">📈 لوحة التحكم</button>
-  <button class="tab-btn" data-tab="repairs">🛠️ الصيانة</button>
   <button class="tab-btn" data-tab="sell">🧾 تسجيل بيع</button>
   <button class="tab-btn" data-tab="catalog">📦 الفئات والأصناف</button>
   <button class="tab-btn" data-tab="itemreport">🔢 كام اتباع من كل صنف</button>
@@ -344,36 +310,6 @@ body.hm-on footer{color:#8b93c9}
   </div>
 
   <!-- SELL -->
-  
-  <div class="tab" id="tab-repairs">
-    <div class="cards" id="rpCards"></div>
-
-    <div class="section-title">📥 استلام جهاز</div>
-    <div class="form-row">
-      <div class="field"><label>اسم العميل</label><input type="text" id="rp_name" oninput="rpCheckDup()"></div>
-      <div class="field"><label>رقم الموبايل</label><input type="tel" id="rp_phone" inputmode="numeric" placeholder="01XXXXXXXXX" oninput="rpCheckDup()"></div>
-      <div class="field"><label>الجهاز (النوع والموديل)</label><input type="text" id="rp_model" placeholder="مثال: رسيفر ستارنت 999"></div>
-      <div class="field" style="flex-basis:100%"><label>المشكلة</label><input type="text" id="rp_issue" placeholder="مثال: مبيشتغلش / مفيش صورة"></div>
-      <div class="field"><label>عربون (لو دفع)</label><input type="number" id="rp_dep" min="0" placeholder="0"></div>
-      <div style="flex-basis:100%" id="rpDupBox"></div>
-      <details style="flex-basis:100%;color:var(--gray);font-size:13px">
-        <summary style="cursor:pointer">➕ تفاصيل إضافية (اختياري)</summary>
-        <div class="form-row" style="padding:10px 0 0;margin:0;background:none;box-shadow:none">
-          <div class="field"><label>السعر المتفق عليه</label><input type="number" id="rp_est" min="0"></div>
-          <div class="field"><label>معاد التسليم</label><input type="date" id="rp_due"></div>
-          <div class="field"><label>سيريال الجهاز</label><input type="text" id="rp_serial" style="direction:ltr"></div>
-          <div class="field" style="flex-basis:100%"><label>حالة الجهاز (خدوش / ملحقات معاه)</label><input type="text" id="rp_cond"></div>
-        </div>
-      </details>
-      <button class="btn green" style="width:100%;padding:14px;font-size:16px" onclick="rpSubmit()">✅ استلام وطباعة الإيصال</button>
-    </div>
-
-    <div class="section-title">📋 الأجهزة</div>
-    <div class="form-row"><div class="field"><input type="text" id="rp_search" placeholder="🔎 ابحث بالكود أو الاسم أو الموبايل" oninput="renderRepairs()"></div></div>
-    <div class="rp-filters" id="rpFilters"></div>
-    <div class="table-wrap" id="rpList"></div>
-  </div>
-
   <div class="tab" id="tab-sell">
     <div class="section-title">🔍 دوّر على صنف بسرعة</div>
     <div class="search-box"><input type="text" id="quickSearch" placeholder="اكتب اسم الصنف..." oninput="renderQuickSearch()"></div>
@@ -496,10 +432,6 @@ body.hm-on footer{color:#8b93c9}
 </main>
 
 <footer>سنتر يس © نظام محاسبة داخلي</footer>
-
-
-<div class="modal-bg" id="rpModal"><div class="modal-box rp-modal" id="rpModalBody"></div></div>
-<div id="rpPrintArea"></div>
 
 <div class="modal-bg" id="confirmModal">
   <div class="modal-box">
@@ -839,7 +771,6 @@ async function loadAllLocalFallback(){
     const c = JSON.parse(localStorage.getItem('cy_catalog')||'null');
     const s = JSON.parse(localStorage.getItem('cy_sales')||'null');
     const e = JSON.parse(localStorage.getItem('cy_expenses')||'null');
-    try{ REPAIRS = JSON.parse(localStorage.getItem('cy_repairs')||'[]')||[]; }catch(_){ REPAIRS=[]; }
     CATALOG = c || DEFAULT_CATALOG;
     SALES = s || [];
     EXPENSES = (e || []).map(x=>({
@@ -1477,7 +1408,7 @@ function renderDashboard(){
 
 /* ======================= BACKUP ======================= */
 function exportBackup(){
-  const data = { catalog: CATALOG, sales: SALES, expenses: EXPENSES, repairs: REPAIRS, exportedAt: new Date().toISOString() };
+  const data = { catalog: CATALOG, sales: SALES, expenses: EXPENSES, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1499,8 +1430,7 @@ function importBackup(event){
           id:x.id, note:x.note, amount:x.amount,
           recurrence:x.recurrence||'once', startDate:x.startDate||x.dateKey||todayKey()
         }));
-        if(data.repairs) REPAIRS = toArray(data.repairs);
-        await saveCatalog(); await saveSales(); await saveExpenses(); await saveRepairs();
+        await saveCatalog(); await saveSales(); await saveExpenses();
         document.getElementById('backupMsg').innerHTML = '<p style="color:var(--green);font-weight:700;">✅ تم استيراد النسخة الاحتياطية بنجاح</p>';
         renderAllTabs();
       });
@@ -1525,7 +1455,6 @@ function renderAllTabs(){
     renderItemReportCatGrid();
     renderItemReport();
     renderExpensesTab();
-    renderRepairs();
     renderHistoryAll();
     if(!document.getElementById('historyDate').value) document.getElementById('historyDate').value = todayKey();
     renderHistoryDay();
@@ -1539,194 +1468,6 @@ function renderAllTabs(){
   }
 }
 
-
-/* ======================= REPAIRS (نظام الصيانة - مبسّط) ======================= */
-const RP_STATUS = {
-  received:{l:'📥 مستلم'}, repairing:{l:'🔧 بيتصلح'}, ready:{l:'✅ جاهز'}, delivered:{l:'🤝 اتسلم'}
-};
-let REPAIRS = [];
-let rpFilter = 'open';
-let repairsFirstLoad = true;
-let rpOpenId = null;
-
-async function saveRepairs(){ await stSet('repairs', REPAIRS); if(!dbReady) renderAllTabs(); }
-function rpSt(r){ return RP_STATUS[r.status] ? r.status : 'repairing'; } /* أي حالة قديمة بتتحول لـ "بيتصلح" */
-function rpIsOpen(r){ return rpSt(r)!=='delivered'; }
-function rpGenCode(){
-  const used=new Set(REPAIRS.map(r=>r.code)); let c, n=0;
-  do{ c=String(Math.floor(1000+Math.random()*9000)); n++; if(n>200) c=String(Math.floor(10000+Math.random()*90000)); }while(used.has(c));
-  return c;
-}
-function rpNormPhone(p){ return (p||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'').replace(/^2(?=01)/,''); }
-function rpEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function rpPaid(r){ return toArray(r.payments).reduce((a,p)=>a+Number(p.amount||0),0); }
-function rpTotal(r){ return Number(r.finalPrice!==''&&r.finalPrice!=null?r.finalPrice:(r.estimate||0)); }
-function rpLog(r,text){ r.log=toArray(r.log); r.log.push({at:Date.now(),text}); }
-
-/* تحذير بسيط لو الرقم متسجل باسم تاني */
-function rpCheckDup(){
-  const box=document.getElementById('rpDupBox'); if(!box) return;
-  const ph=rpNormPhone(document.getElementById('rp_phone').value), nm=document.getElementById('rp_name').value.trim();
-  let html='';
-  if(ph.length>=10){
-    const same=REPAIRS.filter(r=>rpNormPhone(r.phone)===ph);
-    if(same.length){
-      const names=[...new Set(same.map(r=>r.name))];
-      html=`<div class="rp-warn">📞 الرقم ده متسجل قبل كده باسم: ${names.map(rpEsc).join(' / ')}${nm&&!names.includes(nm)?' — الاسم مختلف، اتأكد':''}</div>`;
-    }
-  }
-  box.innerHTML=html;
-}
-
-async function rpSubmit(){
-  const g=id=>document.getElementById(id).value.trim();
-  const name=g('rp_name'), phone=rpNormPhone(g('rp_phone')), model=g('rp_model'), issue=g('rp_issue'), serial=g('rp_serial');
-  if(!name||!phone||!model||!issue){ alert('اكتب الاسم والموبايل والجهاز والمشكلة'); return; }
-  if(phone.length<10||phone.length>11){ alert('رقم الموبايل غلط'); return; }
-  if(serial){
-    const dup=REPAIRS.find(r=>r.serial&&r.serial.toLowerCase()===serial.toLowerCase()&&rpIsOpen(r));
-    if(dup){ alert(`الجهاز ده عندنا بالفعل — كود ${dup.code} باسم ${dup.name}`); return; }
-  }
-  const dep=Number(g('rp_dep'))||0, now=Date.now();
-  const r={ id:uid('rp'), code:rpGenCode(), createdAt:now, dateKey:todayKey(), name, phone, model, serial, issue,
-    condition:g('rp_cond'), estimate:Number(g('rp_est'))||0, finalPrice:'', partsCost:0, due:g('rp_due'),
-    status:'received', payments:dep>0?[{at:now,amount:dep,note:'عربون'}]:[], log:[] };
-  rpLog(r,'تم الاستلام'+(dep>0?` ودفع عربون ${dep} ج`:''));
-  REPAIRS.push(r);
-  await saveRepairs();
-  ['rp_name','rp_phone','rp_model','rp_issue','rp_dep','rp_est','rp_due','rp_serial','rp_cond'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('rpDupBox').innerHTML='';
-  renderAllTabs(); rpOpen(r.id,true); rpPrint(r.id);
-}
-
-function renderRepairs(){
-  const cardsEl=document.getElementById('rpCards'); if(!cardsEl) return;
-  const open=REPAIRS.filter(rpIsOpen), ready=REPAIRS.filter(r=>rpSt(r)==='ready').length;
-  const owed=open.reduce((a,r)=>a+Math.max(0,rpTotal(r)-rpPaid(r)),0);
-  cardsEl.innerHTML=`<div class="card"><div class="label">أجهزة عندنا</div><div class="value">${open.length}</div></div>
-    <div class="card profit"><div class="label">جاهزة للتسليم</div><div class="value">${ready}</div></div>
-    <div class="card warn"><div class="label">متبقي تحصيله</div><div class="value">${fmt(owed)}</div></div>`;
-  const cnt=k=>REPAIRS.filter(r=>k==='open'?rpIsOpen(r):k==='all'?true:rpSt(r)===k).length;
-  document.getElementById('rpFilters').innerHTML=[['open','عندنا'],['ready','جاهز'],['delivered','اتسلم'],['all','الكل']]
-    .map(([k,l])=>`<div class="rp-chip ${rpFilter===k?'active':''}" onclick="rpFilter='${k}';renderRepairs()">${l}<b>${cnt(k)}</b></div>`).join('');
-  const q=document.getElementById('rp_search').value.trim().toLowerCase(), qd=rpNormPhone(q);
-  let list=REPAIRS.filter(r=>rpFilter==='all'||(rpFilter==='open'?rpIsOpen(r):rpSt(r)===rpFilter));
-  if(q) list=list.filter(r=>[r.code,r.name,r.model,r.serial].join(' ').toLowerCase().includes(q)||(qd.length>=3&&rpNormPhone(r.phone).includes(qd)));
-  list.sort((a,b)=>b.createdAt-a.createdAt);
-  const wrap=document.getElementById('rpList');
-  if(!list.length){ wrap.innerHTML='<div class="empty-msg">مفيش أجهزة هنا</div>'; return; }
-  wrap.innerHTML=`<table><thead><tr><th>الكود</th><th>العميل</th><th>الجهاز</th><th>الحالة</th><th></th></tr></thead><tbody>${list.map(r=>`
-    <tr><td><span class="rp-code">${rpEsc(r.code)}</span></td><td>${rpEsc(r.name)}<br><small style="color:var(--gray)">${rpEsc(r.phone)}</small></td>
-    <td>${rpEsc(r.model)}</td><td><span class="rp-status rp-s-${rpSt(r)}">${RP_STATUS[rpSt(r)].l}</span></td>
-    <td><button class="btn small" onclick="rpOpen('${r.id}')">فتح</button></td></tr>`).join('')}</tbody></table>`;
-}
-
-function rpOpen(id,justCreated){
-  const r=REPAIRS.find(x=>x.id===id); if(!r) return; rpOpenId=id;
-  const st=rpSt(r), total=rpTotal(r), paid=rpPaid(r), rem=Math.max(0,total-paid), done=st==='delivered';
-  const stepBtns=['received','repairing','ready'].map(k=>`<button class="btn small ${st===k?'green':''}" style="${st===k?'':'background:#2b3585'}" onclick="rpSetStatus('${r.id}','${k}')">${RP_STATUS[k].l}</button>`).join('');
-  document.getElementById('rpModalBody').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <h3 style="margin:0">كود <span class="rp-code" style="font-size:24px">${rpEsc(r.code)}</span> <span class="rp-status rp-s-${st}">${RP_STATUS[st].l}</span></h3>
-      <button class="btn small" style="background:var(--gray)" onclick="rpClose()">✖</button></div>
-    ${justCreated?'<div class="rp-warn">✅ تم الاستلام. سلّم العميل الإيصال، ومتسلّمش الجهاز غير بالكود.</div>':''}
-    <div class="rp-box" style="margin-top:10px">👤 <b>${rpEsc(r.name)}</b> — ${rpEsc(r.phone)}<br>📱 ${rpEsc(r.model)}${r.serial?` (${rpEsc(r.serial)})`:''}<br>⚠️ ${rpEsc(r.issue)}${r.condition?`<br><small style="color:var(--gray)">الحالة: ${rpEsc(r.condition)}</small>`:''}<br><small style="color:var(--gray)">استلام: ${fmtDateArabic(r.dateKey)}${r.due?' — تسليم متوقع: '+fmtDateArabic(r.due):''}</small></div>
-    ${done?`<div class="rp-box" style="margin-top:8px">🤝 اتسلم يوم ${fmtDateArabic(r.deliveredKey)}</div>`:`
-    <div class="rp-actions">${stepBtns}</div>
-    <div class="form-row" style="margin-top:12px;padding:10px">
-      <div class="field"><label>السعر (ج)</label><input type="number" id="rpe_final" value="${r.finalPrice!==''&&r.finalPrice!=null?r.finalPrice:(r.estimate||'')}"></div>
-      <div class="field"><label>تكلفة القطع عليك (اختياري)</label><input type="number" id="rpe_parts" value="${r.partsCost||''}"></div>
-      <button class="btn" onclick="rpSavePrice('${r.id}')">💾 حفظ</button>
-    </div>`}
-    <div class="cards" style="margin:10px 0"><div class="card"><div class="label">السعر</div><div class="value">${fmt(total)}</div></div>
-      <div class="card profit"><div class="label">مدفوع</div><div class="value">${fmt(paid)}</div></div>
-      <div class="card warn"><div class="label">المتبقي</div><div class="value">${fmt(rem)}</div></div></div>
-    ${done?'':`<div class="rp-actions" style="margin-bottom:6px">
-      <button class="btn green" style="flex:1;padding:14px;font-size:15px" onclick="rpDeliverStart('${r.id}')">🤝 تسليم الجهاز</button></div><div id="rpDeliverBox"></div>`}
-    <div class="rp-actions"><button class="btn small" onclick="rpPrint('${r.id}')">🖨️ طباعة</button>
-      <button class="btn small green" onclick="rpWhatsApp('${r.id}')">💬 واتساب</button>
-      ${done?'':`<button class="btn small red" onclick="rpDelete('${r.id}')">🗑️ حذف</button>`}</div>`;
-  document.getElementById('rpModal').classList.add('show');
-}
-function rpClose(){ document.getElementById('rpModal').classList.remove('show'); rpOpenId=null; }
-
-async function rpSetStatus(id,st){
-  const r=REPAIRS.find(x=>x.id===id); if(!r||rpSt(r)===st) return;
-  r.status=st; rpLog(r,'الحالة: '+RP_STATUS[st].l);
-  await saveRepairs(); renderAllTabs(); rpOpen(id);
-  if(st==='ready' && confirm('الجهاز جاهز — تبعت رسالة واتساب للعميل؟')) rpWhatsApp(id);
-}
-async function rpSavePrice(id){
-  const r=REPAIRS.find(x=>x.id===id); if(!r) return;
-  const f=document.getElementById('rpe_final').value;
-  r.finalPrice=f===''?'':Number(f); r.partsCost=Number(document.getElementById('rpe_parts').value)||0;
-  rpLog(r,`السعر: ${r.finalPrice===''?'—':r.finalPrice} ج`);
-  await saveRepairs(); renderAllTabs(); rpOpen(id);
-}
-function rpDelete(id){
-  showConfirm('حذف','الجهاز ده هيتمسح نهائي. متأكد؟',async()=>{ REPAIRS=REPAIRS.filter(x=>x.id!==id); await saveRepairs(); rpClose(); renderAllTabs(); });
-}
-
-/* التسليم: اكتب الكود اللي مع العميل. لو ضاع الإيصال: رقم الموبايل */
-function rpDeliverStart(id){
-  const r=REPAIRS.find(x=>x.id===id), rem=Math.max(0,rpTotal(r)-rpPaid(r));
-  document.getElementById('rpDeliverBox').innerHTML=`<div class="rp-box" style="border:1px solid #fbbf24;margin-bottom:8px">
-    <div class="form-row" style="padding:6px;margin:0;background:none;box-shadow:none">
-      <div class="field"><label>الكود اللي مع العميل (أو رقم موبايله لو ضيّع الإيصال)</label><input type="text" id="rpd_code" style="direction:ltr" autofocus></div>
-      <div class="field"><label>هيدفع دلوقتي (ج)</label><input type="number" id="rpd_pay" value="${rem}"></div>
-    </div>
-    <button class="btn green" style="width:100%" onclick="rpDeliverConfirm('${r.id}')">✅ تأكيد التسليم</button></div>`;
-}
-async function rpDeliverConfirm(id){
-  const r=REPAIRS.find(x=>x.id===id); if(!r) return;
-  const v=document.getElementById('rpd_code').value.trim();
-  const okCode=v.toUpperCase()===String(r.code).toUpperCase(), okPhone=rpNormPhone(v).length>=10&&rpNormPhone(v)===rpNormPhone(r.phone);
-  if(!okCode&&!okPhone){ alert('❌ الكود أو الموبايل مش مطابق — متسلّمش الجهاز'); return; }
-  const pay=Number(document.getElementById('rpd_pay').value)||0, rem=Math.max(0,rpTotal(r)-rpPaid(r));
-  if(pay<rem && !confirm(`المتبقي ${rem} ج والمدفوع ${pay} ج. تسلّم برضو؟`)) return;
-  if(pay>0) toArray(r.payments), (r.payments=toArray(r.payments)).push({at:Date.now(),amount:pay,note:'عند التسليم'});
-  r.status='delivered'; r.deliveredAt=Date.now(); r.deliveredKey=todayKey();
-  rpLog(r,'تم التسليم'+(okCode?'':' (بالموبايل)'));
-  const total=rpTotal(r), parts=Number(r.partsCost||0);
-  if(total>0){
-    SALES.push({id:uid('s'),invoiceId:'rp-'+r.code,dateKey:todayKey(),time:new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),
-      itemId:null,itemName:`صيانة ${r.model} (${r.code})`,categoryName:'صيانة',qty:1,cost:parts,sell:total,totalCost:parts,totalSell:total,profit:total-parts});
-    await saveSales();
-  }
-  await saveRepairs(); renderAllTabs(); rpOpen(id);
-  showToast('🤝 تم التسليم وتسجيل الإيراد','success',{duration:4000});
-}
-
-function rpWhatsApp(id){
-  const r=REPAIRS.find(x=>x.id===id); if(!r) return; const st=rpSt(r);
-  const msg={received:'تم استلام جهازك',repairing:'جهازك بيتصلح دلوقتي',ready:`جهازك جاهز للتسليم ✅ المتبقي ${fmt(Math.max(0,rpTotal(r)-rpPaid(r)))}`,delivered:'شكراً لتعاملك معانا'}[st];
-  const text=`أهلاً ${r.name} 👋\nسنتر يس — ${msg}\n📱 ${r.model}\n🔖 الكود: ${r.code}`;
-  window.open('https://wa.me/20'+rpNormPhone(r.phone).replace(/^0/,'')+'?text='+encodeURIComponent(text),'_blank');
-}
-function rpPrint(id){
-  const r=REPAIRS.find(x=>x.id===id); if(!r) return;
-  const slip=t=>`<div class="rp-slip"><h2>سنتر يس</h2><div style="text-align:center">${t}</div><hr><div class="big">${rpEsc(r.code)}</div><hr>
-    <div class="row"><span>التاريخ</span><b>${fmtDateArabic(r.dateKey)}</b></div>
-    <div class="row"><span>العميل</span><b>${rpEsc(r.name)}</b></div>
-    <div class="row"><span>موبايل</span><b>${rpEsc(r.phone)}</b></div>
-    <div class="row"><span>الجهاز</span><b>${rpEsc(r.model)}</b></div>
-    <div>المشكلة: ${rpEsc(r.issue)}</div>${r.condition?`<div>الحالة: ${rpEsc(r.condition)}</div>`:''}
-    <div class="row"><span>العربون</span><b>${rpPaid(r)}</b></div>${r.due?`<div class="row"><span>التسليم المتوقع</span><b>${fmtDateArabic(r.due)}</b></div>`:''}<hr>
-    <small>التسليم بالكود ده بس — احتفظ بالإيصال.</small></div>`;
-  document.getElementById('rpPrintArea').innerHTML=slip('إيصال استلام — نسخة العميل')+'<div style="height:12px"></div>'+slip('نسخة المحل');
-  document.body.classList.add('rp-printing');
-  window.onafterprint=()=>{document.body.classList.remove('rp-printing');window.onafterprint=null;};
-  setTimeout(()=>window.print(),150);
-}
-
-function attachRepairsListener(){
-  db.ref('centeryes/repairs').on('value',snap=>{
-    REPAIRS=toArray(snap.val()).map(r=>Object.assign({},r,{payments:toArray(r.payments),log:toArray(r.log)}));
-    repairsFirstLoad=false; renderAllTabs();
-    if(rpOpenId&&document.getElementById('rpModal').classList.contains('show')&&!document.activeElement.closest('#rpModalBody')) rpOpen(rpOpenId);
-  },err=>console.error('repairs listener error',err));
-}
-
 /* ======================= BOOT ======================= */
 (async function boot(){
   document.getElementById('exp_startdate').value = todayKey();
@@ -1736,7 +1477,6 @@ function attachRepairsListener(){
   if(dbReady){
     await ensureDefaultCatalog();
     attachRealtimeListeners();
-    attachRepairsListener();
   } else {
     await loadAllLocalFallback();
     renderAllTabs();
