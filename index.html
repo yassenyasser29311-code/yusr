@@ -334,15 +334,18 @@ body.hm-on footer{color:#8b93c9}
 
   <!-- RETURNS -->
   <div class="tab" id="tab-returns">
-    <div class="section-title">↩️ تسجيل مرتجع (اختار أي صنف من الأصناف اللي بتتباع)</div>
-    <div class="form-row">
-      <div class="field"><label>دوّر على الصنف</label><input type="text" id="rt_search" placeholder="اكتب اسم الصنف..." oninput="renderReturnsTab(true)"></div>
-      <div class="field"><label>الصنف</label><select id="rt_item" onchange="onReturnItemChange()"></select></div>
-      <div class="field" style="flex:0; min-width:90px;"><label>الكمية</label><input type="number" id="rt_qty" min="1" step="1" value="1"></div>
-      <div class="field"><label>سعر المرتجع للقطعة (ج.م)</label><input type="number" id="rt_price" min="0" step="any"></div>
-      <div class="field"><label>السبب (اختياري)</label><input type="text" id="rt_note" placeholder="مثلاً: عيب في الجهاز"></div>
-      <div class="field" style="flex:0;"><button class="btn orange" onclick="addReturn()">↩️ تسجيل المرتجع</button></div>
-    </div>
+    <div class="section-title">🔍 دوّر على صنف بسرعة</div>
+    <div class="search-box"><input type="text" id="rtQuickSearch" placeholder="اكتب اسم الصنف..." oninput="renderReturnQuickSearch()"></div>
+    <div id="rtQuickResults"></div>
+
+    <div class="section-title">1️⃣ اختار الفئة</div>
+    <div class="cat-grid" id="rtCatGrid"></div>
+
+    <div class="section-title" id="rtItemsTitle" style="display:none;">2️⃣ اختار الصنف اللي راجع</div>
+    <div class="item-grid" id="rtItemsGrid"></div>
+
+    <div id="rtFormWrap"></div>
+
     <div class="cards" id="rt_cards"></div>
     <div class="section-title">📋 آخر المرتجعات</div>
     <div id="rt_list"></div>
@@ -1141,26 +1144,31 @@ function renderQuickSearch(){
 function itemLabel(s){
   return s.isReturn ? `${s.itemName} <span style="color:#ea580c;font-weight:700;">↩️ مرتجع</span>` : s.itemName;
 }
-let _rtSig = '';
-function onReturnItemChange(){
-  const it = CATALOG.items.find(x=>x.id===document.getElementById('rt_item').value);
-  document.getElementById('rt_price').value = it ? it.sell : '';
-}
-function renderReturnsTab(force){
-  const sel = document.getElementById('rt_item');
-  if(!sel) return;
-  const q = document.getElementById('rt_search').value.trim();
-  const sig = CATALOG.items.map(i=>i.id+'|'+i.name+'|'+i.sell).join(';') + '#' + q;
-  if(force || sig!==_rtSig){
-    const prev = sel.value;
-    const items = CATALOG.items.filter(i=>!q || i.name.includes(q));
-    sel.innerHTML = items.length
-      ? items.map(i=>{ const cat = CATALOG.categories.find(c=>c.id===i.categoryId); return `<option value="${i.id}">${i.name}${cat?' — '+cat.name:''}</option>`; }).join('')
-      : '<option value="">مفيش نتائج</option>';
-    if(prev && items.some(i=>i.id===prev)) sel.value = prev;
-    _rtSig = sig;
-    if(!prev || sel.value!==prev) onReturnItemChange();
+let selectedReturnCategoryId = null;
+function renderReturnsTab(){
+  if(!document.getElementById('rtCatGrid')) return;
+  // الفئات
+  const catWrap = document.getElementById('rtCatGrid');
+  if(CATALOG.categories.length===0){ catWrap.innerHTML = '<div class="empty-msg">ضيف فئات وأصناف الأول من تبويب "الفئات والأصناف"</div>'; }
+  else catWrap.innerHTML = CATALOG.categories.map(c=>{
+    const count = CATALOG.items.filter(i=>i.categoryId===c.id).length;
+    return `<div class="cat-chip ${selectedReturnCategoryId===c.id?'active':''}" onclick="selectReturnCategory('${c.id}')">${c.name} <span class="badge-count">${count}</span></div>`;
+  }).join('');
+  // الأصناف
+  const itemsWrap = document.getElementById('rtItemsGrid');
+  const title = document.getElementById('rtItemsTitle');
+  if(!selectedReturnCategoryId){ itemsWrap.innerHTML=''; title.style.display='none'; }
+  else {
+    title.style.display='block';
+    const items = CATALOG.items.filter(i=>i.categoryId===selectedReturnCategoryId);
+    itemsWrap.innerHTML = items.length===0 ? '<div class="empty-msg">لا يوجد أصناف تحت الفئة دي بعد</div>' : items.map(it=>`
+      <div class="item-card" onclick="openReturnForm('${it.id}')">
+        <div class="iname">${it.name}</div>
+        <div class="iprice">بيع: ${fmt(it.sell)}</div>
+        ${it.stock!==null && it.stock!==undefined ? `<div class="stock-badge" style="margin-top:5px;">متبقي: ${it.stock}</div>` : ''}
+      </div>`).join('');
   }
+  // الكروت + آخر المرتجعات
   const rets = SALES.filter(x=>x.isReturn);
   const tKey = todayKey(), mKey = monthKeyOf(tKey);
   const sumAmt = arr => arr.reduce((a,x)=>a+Math.abs(x.totalSell),0);
@@ -1171,32 +1179,75 @@ function renderReturnsTab(force){
   const box = document.getElementById('rt_list');
   if(rets.length===0){ box.innerHTML = '<div class="empty-msg">لسه مفيش مرتجعات</div>'; return; }
   const last = rets.slice(-30).reverse();
-  box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الوقت</th><th>الصنف</th><th>الكمية</th><th>المبلغ المرتجع</th><th>الربح المخصوم</th><th>السبب</th><th></th></tr></thead><tbody>
-    ${last.map(x=>`<tr><td>${fmtDateArabic(x.dateKey)}</td><td>${x.time||''}</td><td>${x.itemName}</td><td>${Math.abs(x.qty)}</td><td>${fmt(Math.abs(x.totalSell))}</td><td>${fmt(Math.abs(x.profit))}</td><td>${x.note||'-'}</td><td><button class="btn small red" onclick="deleteReturn('${x.id}')">حذف</button></td></tr>`).join('')}
+  box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الوقت</th><th>الفئة</th><th>الصنف</th><th>الكمية</th><th>المبلغ المرتجع</th><th>الربح المخصوم</th><th>السبب</th><th></th></tr></thead><tbody>
+    ${last.map(x=>`<tr><td>${fmtDateArabic(x.dateKey)}</td><td>${x.time||''}</td><td>${x.categoryName||'-'}</td><td>${x.itemName}</td><td>${Math.abs(x.qty)}</td><td>${fmt(Math.abs(x.totalSell))}</td><td>${fmt(Math.abs(x.profit))}</td><td>${x.note||'-'}</td><td><button class="btn small red" onclick="deleteReturn('${x.id}')">حذف</button></td></tr>`).join('')}
     </tbody></table></div>`;
 }
-async function addReturn(){
-  const it = CATALOG.items.find(x=>x.id===document.getElementById('rt_item').value);
+function selectReturnCategory(id){
+  selectedReturnCategoryId = id;
+  document.getElementById('rtFormWrap').innerHTML = '';
+  renderReturnsTab();
+}
+function renderReturnQuickSearch(){
+  const q = document.getElementById('rtQuickSearch').value.trim();
+  const box = document.getElementById('rtQuickResults');
+  if(!q){ box.innerHTML=''; return; }
+  const results = CATALOG.items.filter(i=>i.name.includes(q));
+  if(results.length===0){ box.innerHTML = '<div class="empty-msg">مفيش نتائج</div>'; return; }
+  box.innerHTML = `<div class="item-grid">${results.map(it=>{
+    const cat = CATALOG.categories.find(c=>c.id===it.categoryId);
+    return `<div class="item-card" onclick="pickReturnItem('${it.id}')"><div class="iname">${it.name}</div><div class="iprice">${cat?cat.name:''} — بيع: ${fmt(it.sell)}</div></div>`;
+  }).join('')}</div>`;
+}
+function pickReturnItem(itemId){
+  const it = CATALOG.items.find(x=>x.id===itemId);
+  if(!it) return;
+  selectedReturnCategoryId = it.categoryId;
+  renderReturnsTab();
+  openReturnForm(itemId);
+  document.getElementById('rtFormWrap').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function openReturnForm(itemId){
+  const it = CATALOG.items.find(x=>x.id===itemId);
+  if(!it) return;
+  document.getElementById('rtFormWrap').innerHTML = `
+    <div class="form-row">
+      <div class="field"><label>الصنف الراجع</label><input type="text" value="${it.name}" disabled></div>
+      <div class="field"><label>الكمية</label><input type="number" id="rf_qty" value="1" min="1" oninput="updateReturnPreview()"></div>
+      <div class="field"><label>السعر عليا</label><input type="number" id="rf_cost" value="${it.cost}" step="0.01" oninput="updateReturnPreview()"></div>
+      <div class="field"><label>سعر المرتجع للقطعة</label><input type="number" id="rf_price" value="${it.sell}" step="0.01" oninput="updateReturnPreview()"></div>
+      <div class="field"><label>الربح اللي هيتخصم</label><input type="text" id="rf_profit" disabled></div>
+      <div class="field"><label>السبب (اختياري)</label><input type="text" id="rf_note" placeholder="مثلاً: عيب في الجهاز"></div>
+      <div class="field" style="flex:0;"><button class="btn orange" onclick="addReturn('${it.id}')">↩️ تسجيل المرتجع</button></div>
+    </div>`;
+  updateReturnPreview();
+}
+function updateReturnPreview(){
+  const qty = parseFloat(document.getElementById('rf_qty').value)||0;
+  const cost = parseFloat(document.getElementById('rf_cost').value)||0;
+  const price = parseFloat(document.getElementById('rf_price').value)||0;
+  document.getElementById('rf_profit').value = fmt((price-cost)*qty);
+}
+async function addReturn(itemId){
+  const it = CATALOG.items.find(x=>x.id===itemId);
   if(!it){ alert('اختار الصنف الأول'); return; }
-  const qty = Number(document.getElementById('rt_qty').value);
-  const price = Number(document.getElementById('rt_price').value);
-  if(!(qty>0)){ alert('اكتب كمية صحيحة'); return; }
-  if(!(price>=0) || document.getElementById('rt_price').value===''){ alert('اكتب سعر المرتجع'); return; }
+  const qty = parseFloat(document.getElementById('rf_qty').value);
+  const cost = parseFloat(document.getElementById('rf_cost').value);
+  const price = parseFloat(document.getElementById('rf_price').value);
+  if(!qty || qty<=0 || isNaN(cost) || isNaN(price)){ alert('تأكد من الكمية والأسعار'); return; }
   const cat = CATALOG.categories.find(c=>c.id===it.categoryId);
   const time = new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
-  const cost = Number(it.cost)||0;
   SALES.push({
     id: uid('s'), invoiceId: uid('ret'), dateKey: todayKey(), time, isReturn: true,
     itemId: it.id, itemName: it.name, categoryName: cat?cat.name:'',
     qty: -qty, cost, sell: price,
     totalCost: -cost*qty, totalSell: -price*qty, profit: -(price-cost)*qty,
-    note: document.getElementById('rt_note').value.trim()
+    note: document.getElementById('rf_note').value.trim()
   });
   if(it.stock!==null && it.stock!==undefined){ it.stock = Number(it.stock) + qty; }
   await saveSales();
   await saveCatalog();
-  document.getElementById('rt_qty').value = 1;
-  document.getElementById('rt_note').value = '';
+  document.getElementById('rtFormWrap').innerHTML = '';
   renderAllTabs();
 }
 function deleteReturn(id){
