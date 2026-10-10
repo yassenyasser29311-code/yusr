@@ -279,6 +279,7 @@ body.hm-on footer{color:#8b93c9}
   <button class="tab-btn" data-tab="catalog">📦 الفئات والأصناف</button>
   <button class="tab-btn" data-tab="itemreport">🔢 كام اتباع من كل صنف</button>
   <button class="tab-btn" data-tab="expenses">💸 المصروفات</button>
+  <button class="tab-btn" data-tab="safe">🔐 الخزنة</button>
   <button class="tab-btn" data-tab="daylog">📅 السجل اليومي</button>
   <button class="tab-btn" data-tab="reports">📊 التقارير</button>
   <button class="tab-btn" data-tab="backup">🛡️ نسخة احتياطية</button>
@@ -404,6 +405,24 @@ body.hm-on footer{color:#8b93c9}
 
     <div class="section-title">📌 مصروفات لمرة واحدة</div>
     <div id="expOnceWrap"></div>
+  </div>
+
+  <!-- SAFE (الخزنة) : سجل للفلوس المتساب في المحل - لا يؤثر على المبيعات أو الأرباح أو المصروفات -->
+  <div class="tab" id="tab-safe">
+    <div class="section-title" id="safeFormTitle">🔐 تسجيل مبلغ متساب في المحل</div>
+    <div class="form-row">
+      <div class="field"><label>التاريخ</label><input type="date" id="safe_date"></div>
+      <div class="field"><label>المبلغ المتساب في المحل</label><input type="number" id="safe_amount" step="0.01" min="0"></div>
+      <div class="field"><label>ملاحظة (اختياري)</label><input type="text" id="safe_note" placeholder="مثال: فلوس الصبح + فكة"></div>
+      <div class="field" style="flex:0;"><button class="btn green" id="safeSaveBtn" onclick="saveSafeEntry()">➕ تسجيل في الخزنة</button></div>
+      <div class="field" style="flex:0;"><button class="btn red" id="safeCancelBtn" onclick="cancelSafeEdit()" style="display:none;">إلغاء التعديل</button></div>
+    </div>
+    <p style="color:var(--gray); font-size:13px; line-height:1.8;">الخزنة مجرد سجل للمبلغ الموجود في المحل — مش بيأثر على المبيعات ولا الأرباح ولا المصروفات.</p>
+
+    <div class="cards" id="safeCards"></div>
+
+    <div class="section-title">📋 سجل الخزنة</div>
+    <div id="safeListWrap"></div>
   </div>
 
   <!-- DAYLOG -->
@@ -1614,6 +1633,7 @@ function renderAllTabs(){
     renderItemReportCatGrid();
     renderItemReport();
     renderExpensesTab();
+    renderSafeTab();
     renderHistoryAll();
     if(!document.getElementById('historyDate').value) document.getElementById('historyDate').value = todayKey();
     renderHistoryDay();
@@ -1627,6 +1647,97 @@ function renderAllTabs(){
   }
 }
 
+/* ======================= SAFE (الخزنة) ======================= */
+/* سجل مستقل تماماً: بيتخزن في مفتاح 'safe' لوحده ومش بيتحسب في أي مبيعات أو أرباح أو مصروفات */
+let SAFE = []; // {id, date, amount, note, createdAt}
+let SAFE_EDIT_ID = null;
+
+function safeEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function normalizeSafe(list){
+  return toArray(list).filter(x=>x && x.id).map(x=>({
+    id:x.id, date:x.date||todayKey(), amount:Number(x.amount)||0, note:x.note||'', createdAt:x.createdAt||0
+  }));
+}
+function sortedSafe(){
+  return SAFE.slice().sort((a,b)=> b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
+}
+async function saveSafe(){ await stSet('safe', SAFE); if(!dbReady) renderSafeTab(); }
+
+function attachSafeListener(){
+  db.ref('centeryes/safe').on('value', snap=>{
+    SAFE = normalizeSafe(snap.val());
+    renderSafeTab();
+  }, err=>console.error('safe listener error', err));
+}
+function loadSafeLocal(){
+  try{ SAFE = normalizeSafe(JSON.parse(localStorage.getItem('cy_safe')||'null')); }catch(e){ SAFE = []; }
+}
+
+async function saveSafeEntry(){
+  const date = document.getElementById('safe_date').value || todayKey();
+  const raw = document.getElementById('safe_amount').value;
+  const amount = parseFloat(raw);
+  const note = document.getElementById('safe_note').value.trim();
+  if(raw==='' || isNaN(amount) || amount<0){ alert('اكتب المبلغ صح'); return; }
+  if(SAFE_EDIT_ID){
+    const e = SAFE.find(x=>x.id===SAFE_EDIT_ID);
+    if(e){ e.date = date; e.amount = amount; e.note = note; }
+  } else {
+    SAFE.push({id:uid('s'), date, amount, note, createdAt:Date.now()});
+  }
+  await saveSafe();
+  resetSafeForm();
+  renderSafeTab();
+}
+function editSafeEntry(id){
+  const e = SAFE.find(x=>x.id===id);
+  if(!e) return;
+  SAFE_EDIT_ID = id;
+  document.getElementById('safe_date').value = e.date;
+  document.getElementById('safe_amount').value = e.amount;
+  document.getElementById('safe_note').value = e.note || '';
+  document.getElementById('safeSaveBtn').textContent = '💾 حفظ التعديل';
+  document.getElementById('safeCancelBtn').style.display = '';
+  document.getElementById('safeFormTitle').textContent = '✏️ تعديل تسجيل الخزنة';
+  document.getElementById('safe_amount').focus();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function cancelSafeEdit(){ resetSafeForm(); }
+function resetSafeForm(){
+  SAFE_EDIT_ID = null;
+  document.getElementById('safe_date').value = todayKey();
+  document.getElementById('safe_amount').value = '';
+  document.getElementById('safe_note').value = '';
+  document.getElementById('safeSaveBtn').textContent = '➕ تسجيل في الخزنة';
+  document.getElementById('safeCancelBtn').style.display = 'none';
+  document.getElementById('safeFormTitle').textContent = '🔐 تسجيل مبلغ متساب في المحل';
+}
+function deleteSafeEntry(id){
+  showConfirm('حذف تسجيل من الخزنة', 'متأكد إنك عايز تحذف التسجيل ده؟', async ()=>{
+    SAFE = SAFE.filter(x=>x.id!==id);
+    if(SAFE_EDIT_ID===id) resetSafeForm();
+    await saveSafe();
+    renderSafeTab();
+  });
+}
+function renderSafeTab(){
+  const dateEl = document.getElementById('safe_date');
+  if(!dateEl) return;
+  if(!dateEl.value) dateEl.value = todayKey();
+  const list = sortedSafe();
+  const latest = list[0];
+  document.getElementById('safeCards').innerHTML = latest
+    ? `<div class="card"><div class="label">الموجود في الخزنة (آخر تسجيل)</div><div class="value">${fmt(latest.amount)}</div></div>
+       <div class="card"><div class="label">تاريخ آخر تسجيل</div><div class="value" style="font-size:18px;">${fmtDateArabic(latest.date)}</div></div>
+       <div class="card"><div class="label">عدد التسجيلات</div><div class="value" style="font-size:18px;">${list.length.toLocaleString('ar-EG')}</div></div>`
+    : '';
+  document.getElementById('safeListWrap').innerHTML = list.length===0
+    ? '<div class="empty-msg">لسه مفيش تسجيلات في الخزنة</div>'
+    : `<div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظة</th><th></th></tr></thead><tbody>
+        ${list.map(e=>`<tr><td>${fmtDateArabic(e.date)}</td><td>${fmt(e.amount)}</td><td>${safeEsc(e.note)}</td><td style="white-space:nowrap;"><button class="btn small" onclick="editSafeEntry('${e.id}')">✏️ تعديل</button> <button class="btn small red" onclick="deleteSafeEntry('${e.id}')">حذف</button></td></tr>`).join('')}
+      </tbody></table></div>`;
+}
+
 /* ======================= BOOT ======================= */
 (async function boot(){
   document.getElementById('exp_startdate').value = todayKey();
@@ -1636,8 +1747,10 @@ function renderAllTabs(){
   if(dbReady){
     await ensureDefaultCatalog();
     attachRealtimeListeners();
+    attachSafeListener();
   } else {
     await loadAllLocalFallback();
+    loadSafeLocal();
     renderAllTabs();
   }
 })();
